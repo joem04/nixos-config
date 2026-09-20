@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
-# Scaffold a new host from inside a NixOS live installer environment.
-# Run this from the root of a cloned copy of this repo.
+# Scaffold a new host, ready to install with nixos-anywhere.
+#
+# Run this on any machine with Nix (it does NOT need to be the target
+# machine — see nixos-anywhere's docs: https://nix-community.github.io/nixos-anywhere/quickstart.html).
 #
 # Usage: scripts/new-host.sh <new-hostname>
 #
-# What it does:
-#   - Copies hosts/thinkpad as a template into hosts/<new-hostname>
-#   - Asks which disk to install to (with a confirmation, since this is
-#     later used by disko to WIPE that disk)
-#   - Fills in the hostname and NixOS version automatically
-#   - Leaves hardware-configuration.nix as a placeholder — that one can only
-#     be generated for real after disko has partitioned and mounted the disk
-#     (see the printed next steps at the end)
+# Per nixos-anywhere's documented process, this script only does the two
+# things that are genuinely manual/required and NOT automated by
+# nixos-anywhere itself:
+#   - Identifying the target's disk (nixos-anywhere docs, step 4: you must
+#     run `lsblk` on the target and edit disk-config.nix yourself)
+#   - Creating a placeholder hardware-configuration.nix so the flake can
+#     evaluate (nixos-anywhere docs, step 8: the import must already exist;
+#     nixos-anywhere then generates the REAL contents automatically during
+#     install via --generate-hardware-config)
 #
-# It does NOT touch flake.nix — hosts are auto-discovered from the hosts/
-# folder, so nothing there needs editing.
+# It deliberately does NOT run disko, generate a real hardware config, or
+# run nixos-install — nixos-anywhere does all of that itself, remotely, in
+# one command (printed at the end of this script). Running those manually
+# would just be duplicating what the tool already does.
 
 set -euo pipefail
 
@@ -33,20 +38,18 @@ if [ -e "$HOST_DIR" ]; then
   exit 1
 fi
 
-echo "== Available disks =="
-lsblk -d -o NAME,SIZE,MODEL
+echo "On the TARGET machine (booted from a NixOS installer USB), run 'lsblk'"
+echo "to find its disk name, e.g.:"
+echo
+echo "  NAME        SIZE MODEL"
+echo "  nvme0n1     1.8T ..."
 echo
 
-read -rp "Which disk should NixOS be installed on? (name only, e.g. nvme0n1): " DISK
+read -rp "Target disk name (e.g. nvme0n1, sda): " DISK
 DISK_PATH="/dev/$DISK"
 
-if [ ! -b "$DISK_PATH" ]; then
-  echo "No such block device: $DISK_PATH" >&2
-  exit 1
-fi
-
 echo
-echo "!! Running disko against $DISK_PATH later will DESTROY ALL DATA on it. !!"
+echo "!! nixos-anywhere will DESTROY ALL DATA on $DISK_PATH on the target. !!"
 read -rp "Type the disk name again to confirm ($DISK): " CONFIRM
 if [ "$CONFIRM" != "$DISK" ]; then
   echo "Confirmation did not match — aborting, nothing was changed." >&2
@@ -58,34 +61,36 @@ cp "$TEMPLATE_DIR/configuration.nix" "$HOST_DIR/configuration.nix"
 cp "$TEMPLATE_DIR/disk-config.nix" "$HOST_DIR/disk-config.nix"
 
 sed -i "s/networking.hostName = \"[^\"]*\";/networking.hostName = \"$HOST\";/" "$HOST_DIR/configuration.nix"
-
-NIXOS_VERSION="$(nixos-version | cut -d. -f1-2)"
-sed -i "s/system.stateVersion = \"[^\"]*\";/system.stateVersion = \"$NIXOS_VERSION\";/" "$HOST_DIR/configuration.nix"
-
 sed -i "s#device = \"[^\"]*\";#device = \"$DISK_PATH\";#" "$HOST_DIR/disk-config.nix"
 
+# system.stateVersion should match the NixOS release on the installer USB
+# you're using for this install, not necessarily this control machine's.
+# Edit hosts/$HOST/configuration.nix if it needs to be different.
+
 cat > "$HOST_DIR/hardware-configuration.nix" <<'EOF'
-# Placeholder. Replace this file after running disko (see scripts/new-host.sh
-# output for the exact commands) using:
-#   sudo nixos-generate-config --no-filesystems --root /mnt
-#   cp /mnt/etc/nixos/hardware-configuration.nix hosts/<this-host>/hardware-configuration.nix
+# Placeholder. nixos-anywhere overwrites this automatically during install
+# (via the --generate-hardware-config flag) — do not fill this in by hand.
 { }
 EOF
 
 echo
-echo "Created hosts/$HOST (hostname + disk device + NixOS version filled in)."
+echo "Created hosts/$HOST."
 echo
-echo "Next steps:"
-echo "  1. Review hosts/$HOST/configuration.nix and disk-config.nix if you want"
-echo "     to change anything else about this machine."
-echo "  2. Partition and mount the disk:"
-echo "       sudo nix run github:nix-community/disko -- --mode destroy,format,mount $HOST_DIR/disk-config.nix"
-echo "  3. Generate the real hardware config and copy it in:"
-echo "       sudo nixos-generate-config --no-filesystems --root /mnt"
-echo "       cp /mnt/etc/nixos/hardware-configuration.nix $HOST_DIR/hardware-configuration.nix"
-echo "  4. Make the new files visible to Nix:"
+echo "Next steps, per https://nix-community.github.io/nixos-anywhere/quickstart.html :"
+echo
+echo "  1. Boot the target from a NixOS installer USB, connect it to a network."
+echo "  2. On the target's own console, set a password for SSH access:"
+echo "       passwd"
+echo "     and find its IP address with:"
+echo "       ip addr"
+echo "  3. Make the new files visible to Nix (from this repo):"
 echo "       git -C \"$REPO_ROOT\" add -A"
-echo "  5. Install:"
-echo "       sudo nixos-install --root /mnt --flake \"$REPO_ROOT#$HOST\""
-echo "  6. Reboot, then once you're back on a machine you trust, push the new"
-echo "     host folder to GitHub."
+echo "  4. (Recommended) test the config in a VM first:"
+echo "       nix run github:nix-community/nixos-anywhere -- --flake \"$REPO_ROOT#$HOST\" --vm-test"
+echo "  5. Install for real — this one command partitions the disk, generates"
+echo "     the real hardware config, and installs NixOS, all remotely:"
+echo "       nix run github:nix-community/nixos-anywhere -- \\"
+echo "         --generate-hardware-config nixos-generate-config $HOST_DIR/hardware-configuration.nix \\"
+echo "         --flake \"$REPO_ROOT#$HOST\" \\"
+echo "         --target-host nixos@<target-ip>"
+echo "  6. Once it reboots into the new system, push the new host folder to GitHub."

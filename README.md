@@ -62,51 +62,66 @@ Hosts are auto-discovered: any folder under `hosts/` with a
 to add a machine. `home/joe.nix` is reused as-is by every host, no changes
 needed there either.
 
-### Option A: from a machine you already trust (e.g. WSL with Nix, or this ThinkPad)
+New machines are installed with
+[nixos-anywhere](https://nix-community.github.io/nixos-anywhere/), following
+its documented process exactly (see its
+[quickstart](https://nix-community.github.io/nixos-anywhere/quickstart.html)
+and
+[no-OS how-to](https://nix-community.github.io/nixos-anywhere/howtos/no-os.html)).
+nixos-anywhere runs from a **control machine** with Nix installed — this can
+be a genuinely separate device (this ThinkPad, WSL, a cloud VM), or the
+target's own live installer session targeting itself over `localhost` (SSH
+doesn't care whether "remote" is a different physical machine — this pattern
+is used in nixos-anywhere's own test suite). Either way, the steps are the
+same:
 
-1. Boot the new machine into any live Linux environment with SSH enabled
-   (a NixOS installer image is fine), and note its IP address.
-2. On your trusted machine: `git clone git@github.com:joem04/nixos-config.git`
-3. Run `scripts/new-host.sh <new-hostname>` — it asks which disk to install
-   to (with a confirmation, since this is destructive) and scaffolds
-   `hosts/<new-hostname>/` for you.
-4. Partition + install using
-   [nixos-anywhere](https://github.com/nix-community/nixos-anywhere):
+1. Boot the target machine from a NixOS installer USB (or netboot),
+   connect it to a network.
+2. On the target's own console, set a password so nixos-anywhere can SSH in
+   as the installer's default `nixos` user, and find its IP:
+   ```
+   passwd
+   ip addr
+   ```
+3. On the control machine, clone this repo (see "cloning without your usual
+   keys" below if you don't have your normal GitHub access on this machine),
+   then run:
+   ```
+   scripts/new-host.sh <new-hostname>
+   ```
+   This asks which disk on the target to install to (confirming twice,
+   since it's destructive) and scaffolds `hosts/<new-hostname>/` — this is
+   the one piece nixos-anywhere genuinely requires you to supply yourself;
+   it doesn't inspect the target's disks for you.
+4. `git add -A` (so Nix can see the new files), then optionally test first:
+   ```
+   nix run github:nix-community/nixos-anywhere -- --flake .#<new-hostname> --vm-test
+   ```
+5. Install for real. This single command partitions the disk, generates the
+   real hardware config, and installs NixOS — all remotely, unattended:
    ```
    nix run github:nix-community/nixos-anywhere -- \
-     --flake .#NEW-NAME root@<new-machine-ip>
+     --generate-hardware-config nixos-generate-config hosts/<new-hostname>/hardware-configuration.nix \
+     --flake .#<new-hostname> \
+     --target-host nixos@<target-ip>
    ```
-   It partitions the disk, installs NixOS with your full config, and
-   reboots into it automatically.
-5. Commit the new host folder and push.
+6. It reboots into the new machine automatically. Since SSH keys are
+   declared in `modules/common.nix`, your usual key already works on it
+   immediately — no manual key setup needed.
+7. Commit and push the new host folder.
 
-### Option B: with only the new laptop itself (no separate control machine)
+### Cloning this repo without your usual GitHub keys
 
-You don't strictly need a second machine — the NixOS installer environment
-you boot the new laptop into already has Nix, git, and everything else
-needed. This works entirely from that one live session:
-
-1. Boot the new laptop from a NixOS installer USB, connect to the internet.
-2. Clone the repo. Since it's private and you likely won't have your usual
-   SSH key on a live/borrowed environment, use a **short-lived, fine-grained
-   GitHub Personal Access Token** instead (Settings → Developer settings →
-   Personal access tokens → Fine-grained token, scoped to just this repo,
-   read-only, expiring in a day or two — can be created from a phone):
-   ```
-   git clone https://<token>@github.com/joem04/nixos-config.git
-   cd nixos-config
-   ```
-   Revoke the token once you're done.
-3. `scripts/new-host.sh <new-hostname>` — asks which disk to use, scaffolds
-   `hosts/<new-hostname>/` for you. Nothing here requires hand-editing Nix
-   syntax.
-4. Follow the exact next-steps it prints (partition with disko, generate
-   the real hardware config, `git add -A`, then `nixos-install`).
-5. Reboot into the new machine. Since SSH keys are declared in
-   `modules/common.nix`, your usual key already works on it immediately —
-   no manual key setup needed.
-6. Once you're back on a machine with your normal GitHub access, push the
-   new host folder so the repo reflects this machine too.
+If you're setting up a new machine away from any device that already has
+your GitHub SSH key (e.g. only the new laptop's live installer session is
+available), use a **short-lived, fine-grained GitHub Personal Access
+Token** instead: Settings → Developer settings → Personal access tokens →
+Fine-grained token, scoped to just this repo, read-only, expiring in a day
+or two (can be created from a phone browser).
+```
+git clone https://<token>@github.com/joem04/nixos-config.git
+```
+Revoke the token once you're done.
 
 ## Notes on this setup
 
