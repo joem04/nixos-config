@@ -11,26 +11,29 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, disko, home-manager, ... }: {
-    nixosConfigurations.thinkpad = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        disko.nixosModules.disko
-        ./hosts/thinkpad/configuration.nix
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.joe = import ./home/joe.nix;
-        }
-      ];
-    };
+  outputs = { self, nixpkgs, disko, home-manager, ... }:
+    let
+      # Every directory under hosts/ is automatically a machine you can
+      # install/rebuild — no need to hand-edit this file to add one.
+      hostNames = builtins.attrNames
+        (nixpkgs.lib.filterAttrs (_: type: type == "directory")
+          (builtins.readDir ./hosts));
 
-    # To add another machine later:
-    #   1. cp -r hosts/thinkpad hosts/NEW-NAME
-    #   2. Replace hosts/NEW-NAME/hardware-configuration.nix and
-    #      disk-config.nix with ones generated for that machine.
-    #   3. Add a nixosConfigurations.NEW-NAME block above, copying the
-    #      thinkpad one and swapping the host path.
-  };
+      mkHost = name: nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          disko.nixosModules.disko
+          (./hosts + "/${name}/configuration.nix")
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.joe = import ./home/joe.nix;
+          }
+        ];
+      };
+    in
+    {
+      nixosConfigurations = nixpkgs.lib.genAttrs hostNames mkHost;
+    };
 }

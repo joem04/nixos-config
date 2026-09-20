@@ -56,44 +56,57 @@ sudo nixos-rebuild switch --rollback
 
 ## Setting up a new machine from this repo
 
-Because shared settings live in `modules/common.nix`, adding a new machine
-that behaves the same as this one is mostly copy-and-adjust-the-hardware:
+Hosts are auto-discovered: any folder under `hosts/` with a
+`configuration.nix` in it automatically becomes a
+`nixosConfigurations.<folder-name>` — `flake.nix` never needs hand-editing
+to add a machine. `home/joe.nix` is reused as-is by every host, no changes
+needed there either.
 
-1. `cp -r hosts/thinkpad hosts/NEW-NAME`
-2. On the new machine, regenerate the two hardware-specific files:
-   - `nixos-generate-config --show-hardware-config > hosts/NEW-NAME/hardware-configuration.nix`
-   - Edit `hosts/NEW-NAME/disk-config.nix` to match that machine's actual
-     disk (check with `lsblk`) — don't reuse the old device name blindly,
-     disko partitioning is destructive.
-3. In `hosts/NEW-NAME/configuration.nix`, change `networking.hostName` and
-   set `system.stateVersion` to whatever NixOS release you're installing
-   with (not necessarily the same as thinkpad's).
-4. Add a `nixosConfigurations.NEW-NAME` entry to `flake.nix`, copying the
-   `thinkpad` block and pointing it at `hosts/NEW-NAME/configuration.nix`.
-   Reuse `home/joe.nix` as-is — no changes needed there.
-5. Install NixOS using this flake (see options below), then commit the new
-   host folder and push.
-
-### Option A: manual (NixOS installer USB)
-Boot the NixOS installer, get networking working, clone this repo, run
-disko against the new disk config, then
-`nixos-install --flake .#NEW-NAME`.
-
-### Option B: nixos-anywhere (faster, no manual installer steps)
-[nixos-anywhere](https://github.com/nix-community/nixos-anywhere) can
-partition and install NixOS on a brand-new machine remotely over SSH, using
-this repo directly — no interactive installer needed. Once
-`hosts/NEW-NAME` exists in this repo:
+### Option A: from a machine you already trust (e.g. WSL with Nix, or this ThinkPad)
 
 1. Boot the new machine into any live Linux environment with SSH enabled
-   (a NixOS installer image is fine).
-2. From a machine with Nix installed (e.g. this ThinkPad, or WSL with Nix):
+   (a NixOS installer image is fine), and note its IP address.
+2. On your trusted machine: `git clone git@github.com:joem04/nixos-config.git`
+3. Run `scripts/new-host.sh <new-hostname>` — it asks which disk to install
+   to (with a confirmation, since this is destructive) and scaffolds
+   `hosts/<new-hostname>/` for you.
+4. Partition + install using
+   [nixos-anywhere](https://github.com/nix-community/nixos-anywhere):
    ```
    nix run github:nix-community/nixos-anywhere -- \
      --flake .#NEW-NAME root@<new-machine-ip>
    ```
-3. It partitions the disk, installs NixOS with your full config, and
-   reboots into it — done.
+   It partitions the disk, installs NixOS with your full config, and
+   reboots into it automatically.
+5. Commit the new host folder and push.
+
+### Option B: with only the new laptop itself (no separate control machine)
+
+You don't strictly need a second machine — the NixOS installer environment
+you boot the new laptop into already has Nix, git, and everything else
+needed. This works entirely from that one live session:
+
+1. Boot the new laptop from a NixOS installer USB, connect to the internet.
+2. Clone the repo. Since it's private and you likely won't have your usual
+   SSH key on a live/borrowed environment, use a **short-lived, fine-grained
+   GitHub Personal Access Token** instead (Settings → Developer settings →
+   Personal access tokens → Fine-grained token, scoped to just this repo,
+   read-only, expiring in a day or two — can be created from a phone):
+   ```
+   git clone https://<token>@github.com/joem04/nixos-config.git
+   cd nixos-config
+   ```
+   Revoke the token once you're done.
+3. `scripts/new-host.sh <new-hostname>` — asks which disk to use, scaffolds
+   `hosts/<new-hostname>/` for you. Nothing here requires hand-editing Nix
+   syntax.
+4. Follow the exact next-steps it prints (partition with disko, generate
+   the real hardware config, `git add -A`, then `nixos-install`).
+5. Reboot into the new machine. Since SSH keys are declared in
+   `modules/common.nix`, your usual key already works on it immediately —
+   no manual key setup needed.
+6. Once you're back on a machine with your normal GitHub access, push the
+   new host folder so the repo reflects this machine too.
 
 ## Notes on this setup
 
