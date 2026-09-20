@@ -9,8 +9,10 @@
 
   programs.git = {
     enable = true;
-    userName = "Joe M";
-    userEmail = "30784663+joem04@users.noreply.github.com";
+    settings.user = {
+      name = "Joe M";
+      email = "30784663+joem04@users.noreply.github.com";
+    };
   };
 
   programs.bash.enable = true;

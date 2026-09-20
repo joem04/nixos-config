@@ -8,31 +8,38 @@ restructuring anything.
 
 ```
 flake.nix                          entry point; lists all machines
-hosts/thinkpad/configuration.nix   this machine's system config (packages,
-                                    services, desktop, etc.)
+modules/common.nix                 settings shared by every machine
+                                    (packages, services, desktop, etc.)
+hosts/thinkpad/configuration.nix   this machine's differences only:
+                                    hostname + system.stateVersion
 hosts/thinkpad/hardware-configuration.nix
                                     auto-generated hardware detection, do not
                                     hand-edit
-hosts/thinkpad/disk-config.nix     declarative disk partitioning (disko)
+hosts/thinkpad/disk-config.nix     declarative disk partitioning (disko),
+                                    specific to this machine's disk
 home/joe.nix                       personal user environment (Home Manager):
-                                    dotfiles, git config, personal packages
+                                    dotfiles, git config, personal packages —
+                                    shared by every machine you use as joe
 ```
 
 **Where do I add things?**
-- A program/tool everyone on the machine should have, or a system service
-  (like Bluetooth, Docker, etc.) → `hosts/thinkpad/configuration.nix`.
-- Something personal to your user account (git settings, shell config,
-  personal CLI tools, editor config) → `home/joe.nix`.
+- Something you want on **every** machine (a program, a service) →
+  `modules/common.nix`.
+- Something specific to **one** machine only (rare — e.g. a laptop-specific
+  driver quirk) → that machine's `hosts/<name>/configuration.nix`.
+- Something personal to your user account, independent of which machine
+  you're on (git settings, shell config, personal CLI tools, editor config)
+  → `home/joe.nix`.
 
 ## Day-to-day workflow
 
 1. Edit files in `~/nixos-config`.
 2. Apply the change:
    ```
-   sudo nixos-rebuild switch --flake ~/nixos-config#thinkpad
+   sudo nixos-rebuild switch
    ```
-   (Since `/etc/nixos` is a symlink to this folder, plain
-   `sudo nixos-rebuild switch` also works.)
+   (`/etc/nixos` is a symlink to this folder, so plain `nixos-rebuild`
+   commands work without needing `--flake` flags.)
 3. If it works and you're happy with it, commit and push:
    ```
    cd ~/nixos-config
@@ -49,26 +56,34 @@ sudo nixos-rebuild switch --rollback
 
 ## Setting up a new machine from this repo
 
+Because shared settings live in `modules/common.nix`, adding a new machine
+that behaves the same as this one is mostly copy-and-adjust-the-hardware:
+
+1. `cp -r hosts/thinkpad hosts/NEW-NAME`
+2. On the new machine, regenerate the two hardware-specific files:
+   - `nixos-generate-config --show-hardware-config > hosts/NEW-NAME/hardware-configuration.nix`
+   - Edit `hosts/NEW-NAME/disk-config.nix` to match that machine's actual
+     disk (check with `lsblk`) — don't reuse the old device name blindly,
+     disko partitioning is destructive.
+3. In `hosts/NEW-NAME/configuration.nix`, change `networking.hostName` and
+   set `system.stateVersion` to whatever NixOS release you're installing
+   with (not necessarily the same as thinkpad's).
+4. Add a `nixosConfigurations.NEW-NAME` entry to `flake.nix`, copying the
+   `thinkpad` block and pointing it at `hosts/NEW-NAME/configuration.nix`.
+   Reuse `home/joe.nix` as-is — no changes needed there.
+5. Install NixOS using this flake (see options below), then commit the new
+   host folder and push.
+
 ### Option A: manual (NixOS installer USB)
-1. Boot the NixOS installer, get networking working.
-2. Clone this repo somewhere, e.g. `git clone git@github.com:joem04/nixos-config.git`.
-3. `cp -r nixos-config/hosts/thinkpad nixos-config/hosts/NEW-NAME`, then edit
-   `disk-config.nix` for the new machine's disk (check the device name with
-   `lsblk`), and regenerate `hardware-configuration.nix` with
-   `nixos-generate-config --show-hardware-config > hosts/NEW-NAME/hardware-configuration.nix`
-   (after mounting the target disks per your disko config).
-4. Add a `nixosConfigurations.NEW-NAME` entry to `flake.nix` (copy the
-   `thinkpad` block and change the host path).
-5. Run disko against the new disk config, then
-   `nixos-install --flake .#NEW-NAME`.
-6. Commit the new host folder and push.
+Boot the NixOS installer, get networking working, clone this repo, run
+disko against the new disk config, then
+`nixos-install --flake .#NEW-NAME`.
 
 ### Option B: nixos-anywhere (faster, no manual installer steps)
 [nixos-anywhere](https://github.com/nix-community/nixos-anywhere) can
 partition and install NixOS on a brand-new machine remotely over SSH, using
-this repo directly — no interactive installer needed. Rough steps once a
-`hosts/NEW-NAME` entry exists in this repo (with a correct `disk-config.nix`
-for the new hardware):
+this repo directly — no interactive installer needed. Once
+`hosts/NEW-NAME` exists in this repo:
 
 1. Boot the new machine into any live Linux environment with SSH enabled
    (a NixOS installer image is fine).
@@ -84,6 +99,6 @@ for the new hardware):
 
 - SSH into this machine uses key-based auth only (password login is
   disabled). Add more trusted keys to `~/.ssh/authorized_keys` as needed.
-- `security.sudo.wheelNeedsPassword = false` is set for convenience since
-  this is a single-user personal machine. Reconsider this if that ever
-  changes.
+- `security.sudo.wheelNeedsPassword = false` (in `modules/common.nix`) is
+  set for convenience since these are single-user personal machines.
+  Reconsider this if that ever changes.
