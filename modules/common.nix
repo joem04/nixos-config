@@ -37,5 +37,11 @@
   users.users.joe = {
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" ];
+    # Public keys only — never put a private key here. Add one entry per
+    # trusted device, with a comment identifying what it is, so a lost/
+    # compromised device can be revoked by deleting just its line.
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJMbUYkwEXx5ac3MaXaE4rIievAWDXx5uHGG/xOS+QyG opencode-thinkpad"
+    ];
   };
 }
