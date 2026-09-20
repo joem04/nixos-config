@@ -7,7 +7,11 @@ restructuring anything.
 ## Layout
 
 ```
-flake.nix                          entry point; lists all machines
+flake.nix                          entry point; auto-discovers every machine
+                                    from the hosts/ folder — never needs
+                                    editing to add one
+flake.lock                         pins exact dependency versions so builds
+                                    are reproducible
 modules/common.nix                 settings shared by every machine
                                     (packages, services, desktop, etc.)
 hosts/thinkpad/configuration.nix   this machine's differences only:
@@ -20,6 +24,8 @@ hosts/thinkpad/disk-config.nix     declarative disk partitioning (disko),
 home/joe.nix                       personal user environment (Home Manager):
                                     dotfiles, git config, personal packages —
                                     shared by every machine you use as joe
+scripts/new-host.sh                scaffolds a new hosts/<name>/ folder ready
+                                    for nixos-anywhere to install
 ```
 
 **Where do I add things?**
@@ -167,6 +173,22 @@ Worth knowing before installing onto unfamiliar hardware:
   ethernet has no network until you connect it with `nmtui` at the console.
   Declaring WiFi passwords would require real secrets management
   (sops-nix/agenix).
+- **WiFi-only machines can't use the fully-unattended `kexec` path.**
+  nixos-anywhere
+  [does not support WiFi](https://github.com/nix-community/nixos-anywhere#prerequisites)
+  when it has to `kexec` into its own installer: that image carries no WiFi
+  credentials, so the network drops mid-install with the disk already wiped.
+  This only affects machines with no ethernet (like `thinkpad`).
+  **The normal new-machine flow is unaffected** — when you boot a NixOS
+  installer USB yourself and connect WiFi with `nmtui`, nixos-anywhere
+  detects the running installer, skips kexec entirely, and the connection
+  survives. You just need physical access to start it off; the install
+  itself still runs remotely from the control machine.
+- **`--vm-test` uses a fixed 4 GiB virtual disk.** A layout needing more
+  than that (this one needs 8.5 GiB for ESP + swap alone) fails with
+  `Could not create partition`. disko's `imageSize` option does *not*
+  override it. To smoke-test a layout in a VM, temporarily shrink the swap
+  size; the structure is what's being validated, not the exact numbers.
 - **`nixos-generate-config` vs `nixos-facter`.** This repo uses the former.
   [nixos-facter](https://github.com/nix-community/nixos-facter) produces a
   more detailed hardware report and can auto-configure drivers and firmware;
