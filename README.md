@@ -40,13 +40,19 @@ scripts/new-host.sh                scaffolds a new hosts/<name>/ folder ready
 ## Day-to-day workflow
 
 1. Edit files in `~/nixos-config`.
-2. Apply the change:
+2. **If you created any _new_ files**, stage them first — Nix silently
+   ignores files git doesn't know about, so a new module you forgot to add
+   will look like it's having no effect:
+   ```
+   git add -A
+   ```
+3. Apply the change:
    ```
    sudo nixos-rebuild switch
    ```
    (`/etc/nixos` is a symlink to this folder, so plain `nixos-rebuild`
    commands work without needing `--flake` flags.)
-3. If it works and you're happy with it, commit and push:
+4. If it works and you're happy with it, commit and push:
    ```
    cd ~/nixos-config
    git add -A

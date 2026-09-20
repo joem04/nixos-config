@@ -121,7 +121,10 @@ Next steps — see https://nix-community.github.io/nixos-anywhere/quickstart.htm
   3. Make the new files visible to Nix (Nix ignores untracked files):
        git -C "$REPO_ROOT" add -A
 
-  4. Optional but recommended — test the config in a VM first:
+  4. (Optional) smoke-test the layout in a VM. NOTE: --vm-test uses a fixed
+     4GiB virtual disk, so it will FAIL on this layout as-is (512M ESP + 8G
+     swap needs 8.5GiB). To try it, temporarily shrink swap in
+     hosts/$HOST/disk-config.nix, run the test, then change it back:
        nix run github:nix-community/nixos-anywhere -- \\
          --flake "$REPO_ROOT#$HOST" --vm-test
 
