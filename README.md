@@ -105,10 +105,16 @@ same:
      --flake .#<new-hostname> \
      --target-host nixos@<target-ip>
    ```
-6. It reboots into the new machine automatically. Since SSH keys are
-   declared in `modules/common.nix`, your usual key already works on it
-   immediately — no manual key setup needed.
-7. Commit and push the new host folder.
+6. It reboots into the new machine automatically. On that machine:
+   ```
+   passwd    # replace the bootstrap password from modules/common.nix
+   nmtui     # connect WiFi, if you're not on ethernet
+   ```
+   Your SSH key already works too, since it's declared in
+   `modules/common.nix` — no manual key setup needed.
+7. Commit and push the new host folder, **including the
+   `hardware-configuration.nix` that nixos-anywhere generated** — that file
+   is what makes the machine reproducible from the repo in future.
 
 ### Cloning this repo without your usual GitHub keys
 
@@ -125,8 +131,39 @@ Revoke the token once you're done.
 
 ## Notes on this setup
 
-- SSH into this machine uses key-based auth only (password login is
-  disabled). Add more trusted keys to `~/.ssh/authorized_keys` as needed.
-- `security.sudo.wheelNeedsPassword = false` (in `modules/common.nix`) is
-  set for convenience since these are single-user personal machines.
-  Reconsider this if that ever changes.
+- SSH uses key-based auth only; password login over SSH is disabled. Trusted
+  keys are declared in `modules/common.nix`, so every machine built from this
+  repo trusts them from first boot. Revoke a device by deleting its line and
+  rebuilding.
+- `users.users.joe.initialHashedPassword` in `modules/common.nix` is a
+  bootstrap password used **only when an account is first created** on a new
+  machine. It exists so a freshly installed laptop has a working console
+  login; without it the only way in would be SSH, which means no way in at
+  all if WiFi isn't up yet. Change it with `passwd` after first boot.
+- `security.sudo.wheelNeedsPassword = false` is set for convenience since
+  these are single-user personal machines. Reconsider if that changes.
+
+## Assumptions and limitations
+
+Worth knowing before installing onto unfamiliar hardware:
+
+- **UEFI only.** `modules/common.nix` uses systemd-boot and the disk layout
+  creates an EFI system partition. A BIOS/legacy-boot-only machine will not
+  boot this config without changes to both.
+- **x86_64 only.** `flake.nix` hardcodes `system = "x86_64-linux"`. An
+  ARM machine would need that made per-host.
+- **Single disk.** The disko layout assumes one disk holding ESP + swap +
+  root. Multi-disk, RAID, or LVM setups need a different `disk-config.nix`
+  (see [disko's examples](https://github.com/nix-community/disko/tree/master/example)).
+- **No hibernation.** Swap uses `randomEncryption`, so the key changes every
+  boot and suspend-to-disk can't work. Remove it if you want hibernation.
+- **Unencrypted root.** Only swap is encrypted. Fine for a home machine;
+  add LUKS if the laptop travels with sensitive data.
+- **No WiFi credentials in the config.** A freshly installed laptop with no
+  ethernet has no network until you connect it with `nmtui` at the console.
+  Declaring WiFi passwords would require real secrets management
+  (sops-nix/agenix).
+- **`nixos-generate-config` vs `nixos-facter`.** This repo uses the former.
+  [nixos-facter](https://github.com/nix-community/nixos-facter) produces a
+  more detailed hardware report and can auto-configure drivers and firmware;
+  worth considering if you start installing onto more varied hardware.
