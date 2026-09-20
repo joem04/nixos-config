@@ -117,10 +117,10 @@ USB. Adding a machine to this repo means creating one folder under `hosts/`;
      --mode destroy,format,mount hosts/<new-hostname>/disk-config.nix
    ```
 
-6. Generate this machine's hardware config, replacing the placeholder:
+6. Generate this machine's hardware config, overwriting the placeholder:
    ```
-   sudo nixos-generate-config --no-filesystems --root /mnt
-   cp /mnt/etc/nixos/hardware-configuration.nix hosts/<new-hostname>/
+   sudo nixos-generate-config --no-filesystems --show-hardware-config \
+     > hosts/<new-hostname>/hardware-configuration.nix
    ```
    `--no-filesystems` matters: disko already declares the filesystems, and
    letting `nixos-generate-config` write its own would conflict with them.

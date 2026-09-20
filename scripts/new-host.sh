@@ -130,10 +130,10 @@ features, add: --extra-experimental-features 'nix-command flakes'
        sudo nix run github:nix-community/disko -- \\
          --mode destroy,format,mount "$HOST_DIR/disk-config.nix"
 
-  3. Generate this machine's real hardware config, replacing the
+  3. Generate this machine's real hardware config, overwriting the
      placeholder (--no-filesystems because disko already declares them):
-       sudo nixos-generate-config --no-filesystems --root /mnt
-       cp /mnt/etc/nixos/hardware-configuration.nix "$HOST_DIR/"
+       sudo nixos-generate-config --no-filesystems --show-hardware-config \\
+         > "$HOST_DIR/hardware-configuration.nix"
 
   4. Stage the new files — Nix ignores anything git doesn't know about:
        git -C "$REPO_ROOT" add -A
