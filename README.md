@@ -74,59 +74,80 @@ Hosts are auto-discovered: any folder under `hosts/` with a
 to add a machine. `home/joe.nix` is reused as-is by every host, no changes
 needed there either.
 
-New machines are installed with
-[nixos-anywhere](https://nix-community.github.io/nixos-anywhere/), following
-its documented process exactly (see its
-[quickstart](https://nix-community.github.io/nixos-anywhere/quickstart.html)
-and
-[no-OS how-to](https://nix-community.github.io/nixos-anywhere/howtos/no-os.html)).
-nixos-anywhere runs from a **control machine** with Nix installed — this can
-be a genuinely separate device (this ThinkPad, WSL, a cloud VM), or the
-target's own live installer session targeting itself over `localhost` (SSH
-doesn't care whether "remote" is a different physical machine — this pattern
-is used in nixos-anywhere's own test suite). Either way, the steps are the
-same:
+Everything below runs **on the new machine itself** — no second computer
+needed. If the installer complains about experimental features, add
+`--extra-experimental-features 'nix-command flakes'` to the `nix` commands.
 
-1. Boot the target machine from a NixOS installer USB (or netboot),
-   connect it to a network.
-2. On the target's own console, set a password so nixos-anywhere can SSH in
-   as the installer's default `nixos` user, and find its IP:
+1. Boot the new machine from a NixOS installer USB and get it online
+   (`nmtui` for WiFi, or just plug in ethernet).
+
+2. Get this repo onto it. It's private, so from a bare installer use a
+   **short-lived, fine-grained GitHub token** (Settings → Developer settings
+   → Personal access tokens → fine-grained, scoped to this repo, read-only,
+   expiring in a day — can be made from a phone):
    ```
-   passwd
-   ip addr
+   nix-shell -p git
+   git clone https://<token>@github.com/joem04/nixos-config.git
+   cd nixos-config
    ```
-3. On the control machine, clone this repo (see "cloning without your usual
-   keys" below if you don't have your normal GitHub access on this machine),
-   then run:
+   Revoke the token afterwards. (Alternative: copy the repo onto the same
+   USB stick beforehand and skip GitHub entirely.)
+
+3. Scaffold the new host. This asks which disk to install to, confirming
+   twice since it's destructive:
    ```
    scripts/new-host.sh <new-hostname>
    ```
-   This asks which disk on the target to install to (confirming twice,
-   since it's destructive) and scaffolds `hosts/<new-hostname>/` — this is
-   the one piece nixos-anywhere genuinely requires you to supply yourself;
-   it doesn't inspect the target's disks for you.
-4. `git add -A` (so Nix can see the new files), then optionally test first:
+
+4. Partition and mount the disk. This **erases it**:
    ```
-   nix run github:nix-community/nixos-anywhere -- --flake .#<new-hostname> --vm-test
+   sudo nix run github:nix-community/disko -- \
+     --mode destroy,format,mount hosts/<new-hostname>/disk-config.nix
    ```
-5. Install for real. This single command partitions the disk, generates the
-   real hardware config, and installs NixOS — all remotely, unattended:
+
+5. Generate the real hardware config for this machine and put it in the
+   repo, replacing the placeholder:
    ```
-   nix run github:nix-community/nixos-anywhere -- \
-     --generate-hardware-config nixos-generate-config hosts/<new-hostname>/hardware-configuration.nix \
-     --flake .#<new-hostname> \
-     --target-host nixos@<target-ip>
+   sudo nixos-generate-config --no-filesystems --root /mnt
+   cp /mnt/etc/nixos/hardware-configuration.nix hosts/<new-hostname>/
    ```
-6. It reboots into the new machine automatically. On that machine:
+   `--no-filesystems` matters: disko already defines the filesystems, so
+   letting nixos-generate-config write its own would conflict.
+
+6. Make the new files visible to Nix, then install:
+   ```
+   git add -A
+   sudo nixos-install --root /mnt --flake .#<new-hostname>
+   ```
+
+7. Reboot. On the new machine:
    ```
    passwd    # replace the bootstrap password from modules/common.nix
    nmtui     # connect WiFi, if you're not on ethernet
    ```
-   Your SSH key already works too, since it's declared in
-   `modules/common.nix` — no manual key setup needed.
-7. Commit and push the new host folder, **including the
-   `hardware-configuration.nix` that nixos-anywhere generated** — that file
-   is what makes the machine reproducible from the repo in future.
+   Your SSH key already works, since it's declared in `modules/common.nix`.
+
+8. Commit and push the new host folder, **including the generated
+   `hardware-configuration.nix`** — that file is what makes this machine
+   reproducible from the repo in future.
+
+### If you ever need a remote or headless install
+
+The steps above assume you're sitting at the machine. For something with no
+monitor attached — a NAS, a home server, a cloud box —
+[nixos-anywhere](https://nix-community.github.io/nixos-anywhere/) does the
+same job over SSH from another machine that has Nix, and never needs the
+target to touch GitHub at all:
+```
+nix run github:nix-community/nixos-anywhere -- \
+  --generate-hardware-config nixos-generate-config hosts/<name>/hardware-configuration.nix \
+  --flake .#<name> \
+  --target-host nixos@<target-ip>
+```
+The target must be booted into a NixOS installer (set a password with
+`passwd` so it can SSH in) or be a Linux box it can `kexec`. Note it
+[does not support WiFi](https://github.com/nix-community/nixos-anywhere#prerequisites)
+on the kexec path — see limitations below.
 
 ### Cloning this repo without your usual GitHub keys
 
