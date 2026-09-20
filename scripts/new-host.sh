@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 # Scaffold a new host in this repo, ready to install.
 #
-# Normally run from a NixOS installer USB booted on the new machine itself.
-# (It also works from any machine with Nix if you're driving a remote install
-# with nixos-anywhere — see README.md.)
+# Run this on the new machine, booted from a NixOS installer USB, after
+# cloning this repo onto it. See the "Installing on a new machine" section
+# of README.md for the full walkthrough.
 #
 # Usage: scripts/new-host.sh <new-hostname>
 #
-# This only sets up the two things that can't be shared between machines:
+# This sets up the pieces that can't be shared between machines:
 #   - Which disk to install to (you supply this; nothing auto-detects it,
-#     and getting it wrong wipes the wrong drive)
+#     and naming the wrong one wipes the wrong drive)
+#   - The hostname
 #   - A placeholder hardware-configuration.nix, so the flake still evaluates
 #     before the real one has been generated
 #
-# It deliberately does NOT partition, install, or touch any disk — it only
-# writes files into this repo. The commands it prints at the end do the
-# actual work, so you can read them before anything destructive happens.
+# It deliberately does NOT partition, format, or install anything — it only
+# writes files into this repo. The commands it prints at the end do the real
+# work, so you can read them before anything destructive happens.
 
 set -euo pipefail
 
@@ -35,7 +36,7 @@ if [ -e "$HOST_DIR" ]; then
 fi
 
 cat <<'PROMPT'
-List the disks on the machine being installed:
+List the disks on this machine:
 
     ls -l /dev/disk/by-id/
 
@@ -47,11 +48,11 @@ something like:
     ata-Samsung_SSD_870_EVO_500GB_S6PENL0T900001
 
 Use the by-id name rather than /dev/sda or /dev/nvme0n1: this is the disk
-that gets WIPED, and kernel names can shift between boots.
+that gets wiped, and kernel names can shift between boots.
 
 PROMPT
 
-read -rp "Target disk by-id name: " DISK_ID
+read -rp "Disk by-id name: " DISK_ID
 
 if [ -z "$DISK_ID" ]; then
   echo "No disk given — aborting, nothing was changed." >&2
@@ -71,6 +72,18 @@ esac
 
 DISK_PATH="/dev/disk/by-id/$DISK_ID"
 
+if [ ! -e "$DISK_PATH" ]; then
+  echo
+  echo "Warning: $DISK_PATH doesn't exist on this machine."
+  echo "That's expected if you're preparing the config elsewhere, but a typo"
+  echo "here means the install will fail (or wipe the wrong disk)."
+  read -rp "Continue anyway? [y/N] " PROCEED
+  case "$PROCEED" in
+    [yY]*) ;;
+    *) echo "Aborting, nothing was changed." >&2; exit 1 ;;
+  esac
+fi
+
 echo
 echo "!! ALL DATA on $DISK_PATH will be DESTROYED when you run disko. !!"
 echo "   (This script only writes config files — nothing is wiped yet.)"
@@ -89,7 +102,7 @@ sed -i "s#device = \"[^\"]*\";#device = \"$DISK_PATH\";#" "$HOST_DIR/disk-config
 
 # system.stateVersion is intentionally inherited from the template: it should
 # match the nixpkgs release this flake installs (nixos-26.05), not whatever
-# release the machine running this script happens to be on.
+# release the installer USB happens to be.
 
 cat > "$HOST_DIR/hardware-configuration.nix" <<'EOF'
 # Placeholder. Replaced during install with this machine's real hardware
@@ -103,13 +116,14 @@ EOF
 
 cat <<EOF
 
-Created hosts/$HOST (hostname + target disk recorded).
+Created hosts/$HOST:
+  hostname : $HOST
+  disk     : $DISK_PATH
 
-Next steps — run these on this machine. Step 2 ERASES $DISK_PATH.
-If nix complains about experimental features, add:
-  --extra-experimental-features 'nix-command flakes'
+Next steps. Step 2 ERASES that disk. If nix complains about experimental
+features, add: --extra-experimental-features 'nix-command flakes'
 
-  1. Double-check the disk is the one you meant:
+  1. Confirm the disk is the one you meant:
        grep device "$HOST_DIR/disk-config.nix"
 
   2. Partition, format and mount it (DESTRUCTIVE):
@@ -117,25 +131,22 @@ If nix complains about experimental features, add:
          --mode destroy,format,mount "$HOST_DIR/disk-config.nix"
 
   3. Generate this machine's real hardware config, replacing the
-     placeholder (--no-filesystems because disko already defines them):
+     placeholder (--no-filesystems because disko already declares them):
        sudo nixos-generate-config --no-filesystems --root /mnt
        cp /mnt/etc/nixos/hardware-configuration.nix "$HOST_DIR/"
 
-  4. Make the new files visible to Nix (it ignores untracked files):
+  4. Stage the new files — Nix ignores anything git doesn't know about:
        git -C "$REPO_ROOT" add -A
 
-  5. Install:
+  5. Install (prompts for a root password at the end):
        sudo nixos-install --root /mnt --flake "$REPO_ROOT#$HOST"
 
-  6. Reboot, then log in at the console with the bootstrap password from
-     modules/common.nix and secure the machine:
+  6. Reboot, remove the USB, and log in as joe with the bootstrap password
+     from modules/common.nix. Then straight away:
        passwd                 # set your real password
        nmtui                  # connect WiFi, if not on ethernet
 
   7. Commit and push hosts/$HOST/ — including the generated
      hardware-configuration.nix, which is what makes this machine
      reproducible later.
-
-Installing onto a headless box you can't sit at? See the nixos-anywhere
-section in README.md instead.
 EOF
