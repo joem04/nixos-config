@@ -46,11 +46,12 @@
     # login at all — the only way in would be SSH, so if WiFi isn't up on
     # first boot you'd be locked out of your own laptop entirely.
     #
-    # This is a hash, not a plaintext password. Regenerate with:
-    #   mkpasswd -m sha-512
-    # (For anything genuinely secret, use sops-nix/agenix instead — this is
-    # only a throwaway first-login password you change on the new machine.)
-    initialHashedPassword = "CHANGEME";
+    # Deliberately plaintext: it's replaced with `passwd` within minutes of
+    # first boot, so the exposure window is tiny. Be aware it is readable in
+    # the Nix store and stays in this repo's git history permanently — don't
+    # reuse it anywhere, and switch to initialHashedPassword (a `mkpasswd
+    # -m sha-512` hash) if this repo ever goes public.
+    initialPassword = "changeme";
 
     # Public keys only — never put a private key here. Add one entry per
     # trusted device, with a comment identifying what it is, so a lost/

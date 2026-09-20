@@ -135,11 +135,15 @@ Revoke the token once you're done.
   keys are declared in `modules/common.nix`, so every machine built from this
   repo trusts them from first boot. Revoke a device by deleting its line and
   rebuilding.
-- `users.users.joe.initialHashedPassword` in `modules/common.nix` is a
-  bootstrap password used **only when an account is first created** on a new
-  machine. It exists so a freshly installed laptop has a working console
-  login; without it the only way in would be SSH, which means no way in at
-  all if WiFi isn't up yet. Change it with `passwd` after first boot.
+- `users.users.joe.initialPassword` in `modules/common.nix` is a bootstrap
+  password used **only when an account is first created** on a new machine.
+  It exists so a freshly installed laptop has a working console login;
+  without it the only way in would be SSH, which means no way in at all if
+  WiFi isn't up yet. **Change it with `passwd` immediately after first
+  boot.** It's plaintext by choice (short-lived, private repo), but it is
+  readable in the Nix store and persists in git history — switch to
+  `initialHashedPassword` with a `mkpasswd -m sha-512` hash if this repo
+  ever becomes public.
 - `security.sudo.wheelNeedsPassword = false` is set for convenience since
   these are single-user personal machines. Reconsider if that changes.
 
