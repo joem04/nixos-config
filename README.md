@@ -12,8 +12,16 @@ flake.nix                          entry point; auto-discovers every machine
                                     editing to add one
 flake.lock                         pins exact dependency versions so builds
                                     are reproducible
-modules/common.nix                 settings shared by every machine
-                                    (packages, services, desktop, etc.)
+modules/                           settings shared by every machine, split
+                                    by topic:
+  default.nix                        imports all the files below — this is
+                                      what hosts actually import
+  boot.nix                           bootloader
+  networking.nix                     networkmanager, avahi, ssh
+  desktop.nix                        xserver, i3, lightdm, system packages
+  users.nix                          the joe account, bootstrap password,
+                                      trusted SSH keys
+  nix-settings.nix                   flakes, allowUnfree, passwordless sudo
 hosts/thinkpad/configuration.nix   this machine's differences only:
                                     hostname + system.stateVersion
 hosts/thinkpad/hardware-configuration.nix
@@ -29,8 +37,9 @@ scripts/new-host.sh                scaffolds a new hosts/<name>/ folder when
 ```
 
 **Where do I add things?**
-- Something you want on **every** machine (a program, a service) →
-  `modules/common.nix`.
+- Something you want on **every** machine (a program, a service) → the
+  relevant file in `modules/` (e.g. a package goes in `desktop.nix`), or a
+  new file listed in `modules/default.nix` if it's a new topic.
 - Something specific to **one** machine only (rare — e.g. a laptop-specific
   driver quirk) → that machine's `hosts/<name>/configuration.nix`.
 - Something personal to your user account, independent of which machine
@@ -135,12 +144,12 @@ USB. Adding a machine to this repo means creating one folder under `hosts/`;
    account. (Pass `--no-root-password` to skip.)
 
 8. Reboot and remove the USB. Log in as `joe` with the bootstrap password
-   from `modules/common.nix`, then immediately:
+   from `modules/users.nix`, then immediately:
    ```
    passwd    # set your real password
    nmtui     # connect WiFi, if you're not on ethernet
    ```
-   Your SSH key already works, since it's declared in `modules/common.nix`.
+   Your SSH key already works, since it's declared in `modules/users.nix`.
 
 9. Commit and push the new host folder, **including the generated
    `hardware-configuration.nix`** — that file is what makes this machine
@@ -158,7 +167,7 @@ If the installer complains about experimental features, add
 
 Worth knowing before installing onto unfamiliar hardware:
 
-- **UEFI only.** `modules/common.nix` uses systemd-boot and the disk layout
+- **UEFI only.** `modules/boot.nix` uses systemd-boot and the disk layout
   creates an EFI system partition. A BIOS/legacy-boot-only machine will not
   boot this config without changes to both.
 - **x86_64 only.** `flake.nix` hardcodes `system = "x86_64-linux"`. An ARM
@@ -178,10 +187,10 @@ Worth knowing before installing onto unfamiliar hardware:
 ## Notes on this setup
 
 - SSH uses key-based auth only; password login over SSH is disabled. Trusted
-  keys are declared in `modules/common.nix`, so every machine built from this
+  keys are declared in `modules/users.nix`, so every machine built from this
   repo trusts them from first boot. Revoke a device by deleting its line and
   rebuilding.
-- `users.users.joe.initialPassword` in `modules/common.nix` is a bootstrap
+- `users.users.joe.initialPassword` in `modules/users.nix` is a bootstrap
   password used **only when an account is first created** on a new machine.
   It exists so a freshly installed laptop has a working console login;
   without it the only way in would be SSH, which means no way in at all if
@@ -190,8 +199,9 @@ Worth knowing before installing onto unfamiliar hardware:
   readable in the Nix store and persists in git history — switch to
   `initialHashedPassword` with a `mkpasswd -m sha-512` hash if this repo
   ever becomes public.
-- `security.sudo.wheelNeedsPassword = false` is set for convenience since
-  these are single-user personal machines. Reconsider if that changes.
+- `security.sudo.wheelNeedsPassword = false` (in `modules/nix-settings.nix`)
+  is set for convenience since these are single-user personal machines.
+  Reconsider if that changes.
 - The disko `device` is a `/dev/disk/by-id/...` path rather than
   `/dev/sda`/`/dev/nvme0n1`. The running system mounts by partition label,
   so this path only matters during install — which is exactly when naming

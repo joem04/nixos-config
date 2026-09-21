@@ -142,7 +142,7 @@ features, add: --extra-experimental-features 'nix-command flakes'
        sudo nixos-install --root /mnt --flake "$REPO_ROOT#$HOST"
 
   6. Reboot, remove the USB, and log in as joe with the bootstrap password
-     from modules/common.nix. Then straight away:
+     from modules/users.nix. Then straight away:
        passwd                 # set your real password
        nmtui                  # connect WiFi, if not on ethernet
 
