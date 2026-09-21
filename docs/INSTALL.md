@@ -7,12 +7,9 @@ USB. Adding a machine to this repo means creating one folder under `hosts/`;
 ## Before you start
 
 - A **NixOS installer USB** (write the ISO with Rufus, Etcher, or `dd`).
-- A way to **get this repo onto the machine**. It's private, so either:
-  - a short-lived **fine-grained GitHub token** (Settings → Developer
-    settings → Personal access tokens → fine-grained, scoped to this repo,
-    read-only, expiring in a day — can be created from a phone), or
-  - a **copy of the repo on the same USB stick**, avoiding GitHub entirely.
 - The machine should be **UEFI** and **x86_64** (see [NOTES.md](NOTES.md)).
+
+The repo is public, so cloning it just works — no token or auth needed.
 
 ## Steps
 
@@ -25,10 +22,9 @@ USB. Adding a machine to this repo means creating one folder under `hosts/`;
 2. Get the repo onto the machine and enter it:
    ```
    nix-shell -p git
-   git clone https://<token>@github.com/joem04/nixos-config.git
+   git clone https://github.com/joem04/nixos-config.git
    cd nixos-config
    ```
-   Revoke the token afterwards.
 
 3. Find the disk you want to install to, by stable ID:
    ```

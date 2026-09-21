@@ -30,10 +30,15 @@ Worth knowing before installing onto unfamiliar hardware:
   It exists so a freshly installed laptop has a working console login;
   without it the only way in would be SSH, which means no way in at all if
   WiFi isn't up yet. **Change it with `passwd` immediately after first
-  boot.** It's plaintext by choice (short-lived, private repo), but it is
-  readable in the Nix store and persists in git history — switch to
-  `initialHashedPassword` with a `mkpasswd -m sha-512` hash if this repo
-  ever becomes public.
+  boot.**
+  This repo is public, so that password is visible to anyone — a deliberate
+  choice, not an oversight: it's only ever valid for the few minutes before
+  you run `passwd`, and SSH password auth is already disabled, so it isn't
+  remotely exploitable. If that tradeoff ever stops being acceptable, switch
+  to `initialHashedPassword` with a `mkpasswd -m sha-512` hash instead.
+- This repo also publishes `hosts/thinkpad/disk-config.nix`, which includes
+  the exact model and serial number of that machine's SSD. Also accepted
+  knowingly — low risk, but worth knowing it's public.
 - `security.sudo.wheelNeedsPassword = false` (in `modules/nix-settings.nix`)
   is set for convenience since these are single-user personal machines.
   Reconsider if that changes.
