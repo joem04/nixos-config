@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ../../modules/common.nix
+    ../../modules
     ./hardware-configuration.nix
     ./disk-config.nix
   ];
