@@ -28,7 +28,13 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.joe = import ./home/joe.nix;
+            # Every host gets home/default.nix. If a host also has its own
+            # file under home/hosts/<name>.nix, that gets layered on top —
+            # a host with no override file just gets the defaults.
+            home-manager.users.joe.imports = [ ./home/default.nix ]
+              ++ nixpkgs.lib.optional
+                   (builtins.pathExists (./home/hosts + "/${name}.nix"))
+                   (./home/hosts + "/${name}.nix");
           }
         ];
       };
