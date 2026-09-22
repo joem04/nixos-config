@@ -3,8 +3,6 @@
 {
   home.username = "joe";
   home.homeDirectory = "/home/joe";
-  # Do not change this after the first successful build; it tracks Home
-  # Manager's own compatibility, not your NixOS version.
   home.stateVersion = "26.05";
 
   programs.git = {

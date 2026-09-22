@@ -1,7 +1,5 @@
 { ... }:
 
-# How this machine talks to the network: general connectivity, LAN discovery,
-# and remote (SSH) access.
 {
   networking.networkmanager.enable = true;
 
