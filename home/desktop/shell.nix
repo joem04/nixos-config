@@ -10,7 +10,7 @@ let
     volumeLow = glyph "f026";
     volumeMedium = glyph "f027";
     volumeHigh = glyph "f028";
-    volumeMuted = glyph "f6a9";
+    volumeMuted = glyph "f026";
     wifi = glyph "f1eb";
     ethernet = glyph "f0e8";
     offline = glyph "f127";
@@ -49,6 +49,7 @@ in
             default = icons.workspaceInactive;
           };
           all-outputs = true;
+          persistent-workspaces = { "*" = 5; };
         };
 
         "hyprland/window" = {
