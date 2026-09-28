@@ -5,23 +5,23 @@ let
   # This keeps the repository and every transfer path encoding-safe.
   glyph = code: builtins.fromJSON ''"\u${code}"'';
   icons = {
-    workspaceActive = glyph "f192";
-    workspaceInactive = glyph "f111";
+    workspaceActive = glyph "f111";
+    workspaceInactive = glyph "f10c";
     volumeLow = glyph "f026";
     volumeMedium = glyph "f027";
     volumeHigh = glyph "f028";
-    volumeMuted = glyph "f0581";
-    wifi = glyph "f05a9";
-    ethernet = glyph "f0200";
-    offline = glyph "f05aa";
-    batteryCharging = glyph "f0084";
-    batteryPlugged = glyph "f06a5";
-    batteryEmpty = glyph "f007a";
-    batteryLow = glyph "f007c";
-    batteryMedium = glyph "f007e";
-    batteryHigh = glyph "f0080";
-    batteryFull = glyph "f0079";
-    clock = glyph "f0954";
+    volumeMuted = glyph "f6a9";
+    wifi = glyph "f1eb";
+    ethernet = glyph "f0e8";
+    offline = glyph "f127";
+    batteryCharging = glyph "f0e7";
+    batteryPlugged = glyph "f1e6";
+    batteryEmpty = glyph "f244";
+    batteryLow = glyph "f243";
+    batteryMedium = glyph "f242";
+    batteryHigh = glyph "f241";
+    batteryFull = glyph "f240";
+    clock = glyph "f017";
   };
   theme = import ./theme.nix;
 in
