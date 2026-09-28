@@ -3,6 +3,7 @@
 {
   imports = [
     ./desktop/hyprland.nix
+    ./desktop/shell.nix
   ];
 
   home.username = "joe";
