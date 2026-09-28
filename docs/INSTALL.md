@@ -2,7 +2,7 @@
 
 Everything here runs **on the new machine itself**, from a NixOS installer
 USB. Adding a machine to this repo means creating one folder under `hosts/`;
-`flake.nix` picks it up automatically, and `home/joe.nix` is reused as-is.
+`flake.nix` picks it up automatically, and `home/default.nix` is reused as-is; add `home/hosts/<name>.nix` only for host-specific Home Manager settings.
 
 ## Before you start
 

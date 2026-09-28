@@ -11,7 +11,7 @@ Everything a machine needs — packages, desktop, disk layout, dotfiles — live
 | `flake.nix` | Entry point. Auto-discovers every host under `hosts/` — never needs editing to add one. |
 | `modules/` | Settings shared by every machine, split by topic. |
 | `hosts/<name>/` | One folder per machine: hostname, hardware detection, disk layout. |
-| `home/joe.nix` | Personal environment (Home Manager) — dotfiles, git identity, packages. |
+| `home/default.nix` | Personal environment (Home Manager) — dotfiles, git identity, packages. |
 | `scripts/new-host.sh` | Scaffolds a new host when installing on another machine. |
 
 **`modules/`, by topic:**
@@ -31,7 +31,7 @@ Everything a machine needs — packages, desktop, disk layout, dotfiles — live
 |---|---|
 | Add something for **every** machine | The relevant file in `modules/` |
 | Add something for **one** machine only | `hosts/<name>/configuration.nix` |
-| Add a personal dotfile, tool, or setting | `home/joe.nix` |
+| Add a personal dotfile, tool, or setting | `home/default.nix` |
 
 ## Day-to-day
 
