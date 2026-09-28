@@ -21,6 +21,10 @@
     configType = "hyprlang";
     enable = true;
     settings = {
+      cursor = {
+        inactive_timeout = 1;
+        hide_on_key_press = true;
+      };
       # mkDefault so a per-host override (see home/hosts/<name>.nix) fully
       # replaces this instead of Nix concatenating both lists together.
       monitor = lib.mkDefault [ ",preferred,auto,1" ];
