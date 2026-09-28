@@ -1,6 +1,28 @@
 { ... }:
 
 let
+  # Decode Nerd Font code points in Nix rather than storing glyphs directly.
+  # This keeps the repository and every transfer path encoding-safe.
+  glyph = code: builtins.fromJSON ''"\u${code}"'';
+  icons = {
+    workspaceActive = glyph "f192";
+    workspaceInactive = glyph "f111";
+    volumeLow = glyph "f026";
+    volumeMedium = glyph "f027";
+    volumeHigh = glyph "f028";
+    volumeMuted = glyph "f0581";
+    wifi = glyph "f05a9";
+    ethernet = glyph "f0200";
+    offline = glyph "f05aa";
+    batteryCharging = glyph "f0084";
+    batteryPlugged = glyph "f06a5";
+    batteryEmpty = glyph "f007a";
+    batteryLow = glyph "f007c";
+    batteryMedium = glyph "f007e";
+    batteryHigh = glyph "f0080";
+    batteryFull = glyph "f0079";
+    clock = glyph "f0954";
+  };
   theme = import ./theme.nix;
 in
 {
@@ -23,8 +45,8 @@ in
         "hyprland/workspaces" = {
           format = "{icon}";
           format-icons = {
-            active = "?";
-            default = "?";
+            active = icons.workspaceActive;
+            default = icons.workspaceInactive;
           };
           all-outputs = true;
         };
@@ -37,17 +59,17 @@ in
 
         pulseaudio = {
           format = "{icon}  {volume}%";
-          format-muted = "??  muted";
+          format-muted = "${icons.volumeMuted}  muted";
           format-icons = {
-            default = [ "?" "?" "?" ];
+            default = [ icons.volumeLow icons.volumeMedium icons.volumeHigh ];
           };
           on-click = "pavucontrol";
         };
 
         network = {
-          format-wifi = "??  {signalStrength}%";
-          format-ethernet = "??  connected";
-          format-disconnected = "??  offline";
+          format-wifi = "${icons.wifi}  {signalStrength}%";
+          format-ethernet = "${icons.ethernet}  connected";
+          format-disconnected = "${icons.offline}  offline";
           tooltip-format = "{ifname}: {ipaddr}";
           on-click = "nm-connection-editor";
         };
@@ -59,13 +81,13 @@ in
             critical = 15;
           };
           format = "{icon}  {capacity}%";
-          format-charging = "??  {capacity}%";
-          format-plugged = "??  {capacity}%";
-          format-icons = [ "??" "??" "??" "??" "??" ];
+          format-charging = "${icons.batteryCharging}  {capacity}%";
+          format-plugged = "${icons.batteryPlugged}  {capacity}%";
+          format-icons = [ icons.batteryEmpty icons.batteryLow icons.batteryMedium icons.batteryHigh icons.batteryFull ];
         };
 
         clock = {
-          format = "??  {:%a, %d %b  %H:%M}";
+          format = "${icons.clock}  {:%a, %d %b  %H:%M}";
           tooltip-format = "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>";
         };
 
