@@ -17,6 +17,8 @@
   home.packages = with pkgs; [ wofi ];
 
   wayland.windowManager.hyprland = {
+    # The settings below use Hyprlang syntax, including $mod variables.
+    configType = "hyprlang";
     enable = true;
     settings = {
       # mkDefault so a per-host override (see home/hosts/<name>.nix) fully
