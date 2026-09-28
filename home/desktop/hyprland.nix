@@ -94,7 +94,7 @@ in
         "$mod, F, fullscreen, 0"
         "$mod, V, togglefloating,"
         "$mod, P, pseudo,"
-        "$mod, J, togglesplit,"
+        "$mod, S, togglesplit,"
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
         "$mod, K, movefocus, u"

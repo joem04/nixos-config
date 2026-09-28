@@ -34,3 +34,30 @@ settings, and external state files.
 
 Each completed stage is validated and committed separately so the evolution is
 easy to review and roll back.
+
+## Daily controls
+
+| Shortcut | Action |
+|---|---|
+| `Super + Return` | Terminal |
+| `Super + D` | Application launcher |
+| `Super + Q` | Close focused window |
+| `Super + F` / `Super + V` | Fullscreen / toggle floating |
+| `Super + H/J/K/L` | Focus left/down/up/right |
+| `Super + S` | Toggle split direction |
+| `Super + 1` … `9` | Switch workspace |
+| `Super + Shift + 1` … `9` | Move focused window to workspace |
+| `Super + Shift + S` | Region screenshot, opened in Swappy |
+| `Super + C` | Clipboard history |
+| Media / brightness keys | Volume, microphone mute, and backlight |
+
+## Files
+
+- `home/desktop/theme.nix` — the shared palette and font family.
+- `home/desktop/lightcrimson.svg` — the generated wallpaper source.
+- `home/desktop/hyprland.nix` — compositor and keybindings.
+- `home/desktop/shell.nix` — Waybar, Wofi, and Mako.
+- `home/desktop/terminal.nix` — Alacritty theme.
+
+To change the accent palette, edit `theme.nix` and rebuild. Do not edit the
+files under `~/.config` directly; Home Manager regenerates them.
