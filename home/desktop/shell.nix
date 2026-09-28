@@ -32,7 +32,7 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 36;
+        height = 38;
         spacing = 8;
         margin-top = 8;
         margin-left = 12;
@@ -104,7 +104,7 @@ in
         border: none;
         border-radius: 0;
         font-family: "${theme.font}";
-        font-size: 13px;
+        font-size: 14px;
         min-height: 0;
       }
 
@@ -204,7 +204,7 @@ in
       border-radius: 16px;
       background-color: #${theme.backgroundAlt};
       font-family: "${theme.font}";
-      font-size: 13px;
+      font-size: 14px;
     }
     #input {
       margin: 14px;
