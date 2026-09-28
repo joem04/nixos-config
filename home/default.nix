@@ -4,6 +4,7 @@
   imports = [
     ./desktop/hyprland.nix
     ./desktop/shell.nix
+    ./desktop/terminal.nix
   ];
 
   home.username = "joe";
