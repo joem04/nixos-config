@@ -19,7 +19,7 @@
             };
             swap = {
               size = "8G";
-              content = { type = "swap"; randomEncryption = false; };
+              content = { type = "swap"; randomEncryption = true; };
             };
             root = {
               size = "100%";
