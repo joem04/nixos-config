@@ -1,6 +1,10 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 
 {
+  imports = [
+    ./desktop/hyprland.nix
+  ];
+
   home.username = "joe";
   home.homeDirectory = "/home/joe";
   home.stateVersion = "26.05";
@@ -14,6 +18,7 @@
   };
 
   programs.bash.enable = true;
+
   home.packages = with pkgs; [
     wofi
     swaybg
@@ -37,28 +42,6 @@
     gtk.enable = true;
     x11.enable = true;
   };
-
-  wayland.windowManager.hyprland = {
-    # The settings below use Hyprlang syntax, including $mod variables.
-    configType = "hyprlang";
-    enable = true;
-    settings = {
-      # mkDefault so a per-host override (see home/hosts/<name>.nix) fully
-      # replaces this instead of Nix concatenating both lists together.
-      monitor = lib.mkDefault [ ",preferred,auto,1" ];
-      "$mod" = "SUPER";
-      "$terminal" = "alacritty";
-      bind = [
-        "$mod, Return, exec, $terminal"
-        "$mod, Q, killactive"
-        "$mod, D, exec, wofi --show drun"
-        "$mod SHIFT, E, exit"
-      ];
-      exec-once = [ "waybar" ];
-    };
-  };
-
-  programs.waybar.enable = true;
 
   # Let Home Manager manage itself.
   programs.home-manager.enable = true;
