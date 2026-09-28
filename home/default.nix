@@ -14,7 +14,20 @@
   };
 
   programs.bash.enable = true;
-  home.packages = with pkgs; [ wofi ];
+  home.packages = with pkgs; [
+    wofi
+    swaybg
+    grim
+    slurp
+    swappy
+    wl-clipboard
+    cliphist
+    pavucontrol
+    playerctl
+    brightnessctl
+    networkmanagerapplet
+    libnotify
+  ];
 
   # Standard visible cursor theme for Wayland, GTK, and XWayland applications.
   home.pointerCursor = {
