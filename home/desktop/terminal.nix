@@ -57,19 +57,19 @@ in
           red = "0x${theme.accentStrong}";
           green = "0x${theme.success}";
           yellow = "0x${theme.warning}";
-          blue = "0xb7b4e8";
-          magenta = "0xd9a8d4";
-          cyan = "0x9ec8d7";
+          blue = "0xc4c4c4";
+          magenta = "0xcdcdcd";
+          cyan = "0xc0c0c0";
           white = "0x${theme.text}";
         };
         bright = {
           black = "0x${theme.muted}";
-          red = "0xffb0c2";
-          green = "0xc7edd2";
-          yellow = "0xf9dba9";
-          blue = "0xd2d0ff";
-          magenta = "0xf0c7ec";
-          cyan = "0xc2e9f5";
+          red = "0xf5f5f5";
+          green = "0xe0e0e0";
+          yellow = "0xe8e8e8";
+          blue = "0xe5e5e5";
+          magenta = "0xebebeb";
+          cyan = "0xe2e2e2";
           white = "0xffffff";
         };
       };

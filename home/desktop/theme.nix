@@ -1,16 +1,16 @@
 {
-  # Light Crimson-inspired palette. Values omit the leading '#', which keeps
+  # Neutral monochrome palette. Values omit the leading '#', which keeps
   # them convenient for both Hyprlang's rgb() and CSS/terminal renderers.
-  background = "171217";
-  backgroundAlt = "21191f";
-  surface = "2b2029";
-  surfaceBright = "3a2b36";
-  text = "f7e9f0";
-  muted = "c8b5c0";
-  accent = "f2a7bb";
-  accentStrong = "e27894";
-  accentDim = "b85b74";
-  success = "a8d8b9";
-  warning = "f1c98a";
+  background = "101010";
+  backgroundAlt = "171717";
+  surface = "1e1e1e";
+  surfaceBright = "303030";
+  text = "f5f5f5";
+  muted = "b8b8b8";
+  accent = "dedede";
+  accentStrong = "f5f5f5";
+  accentDim = "767676";
+  success = "c9c9c9";
+  warning = "d5d5d5";
   font = "JetBrainsMono Nerd Font";
 }

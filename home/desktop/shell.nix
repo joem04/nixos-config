@@ -32,7 +32,7 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 34;
+        height = 36;
         spacing = 8;
         margin-top = 8;
         margin-left = 12;
@@ -104,7 +104,7 @@ in
         border: none;
         border-radius: 0;
         font-family: "${theme.font}";
-        font-size: 12px;
+        font-size: 13px;
         min-height: 0;
       }
 
@@ -120,8 +120,8 @@ in
       #battery,
       #clock,
       #tray {
-        background: rgba(43, 32, 41, 0.94);
-        border: 1px solid rgba(242, 167, 187, 0.20);
+        background: rgba(30, 30, 30, 0.94);
+        border: 1px solid rgba(245, 245, 245, 0.16);
         border-radius: 12px;
         padding: 0 12px;
       }
