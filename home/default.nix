@@ -16,15 +16,20 @@
   programs.bash.enable = true;
   home.packages = with pkgs; [ wofi ];
 
+  # Standard visible cursor theme for Wayland, GTK, and XWayland applications.
+  home.pointerCursor = {
+    package = pkgs.adwaita-icon-theme;
+    name = "Adwaita";
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
   wayland.windowManager.hyprland = {
     # The settings below use Hyprlang syntax, including $mod variables.
     configType = "hyprlang";
     enable = true;
     settings = {
-      cursor = {
-        inactive_timeout = 1;
-        hide_on_key_press = true;
-      };
       # mkDefault so a per-host override (see home/hosts/<name>.nix) fully
       # replaces this instead of Nix concatenating both lists together.
       monitor = lib.mkDefault [ ",preferred,auto,1" ];
