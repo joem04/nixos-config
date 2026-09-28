@@ -67,9 +67,7 @@ in
         };
       };
 
-      gestures.workspace_swipe = true;
       dwindle = {
-        pseudotile = true;
         preserve_split = true;
       };
       misc = {
@@ -78,12 +76,12 @@ in
         focus_on_activate = true;
       };
 
-      windowrulev2 = [
-        "float, class:^(pavucontrol)$"
-        "size 900 600, class:^(pavucontrol)$"
-        "float, class:^(nm-connection-editor)$"
-        "size 900 600, class:^(nm-connection-editor)$"
-        "float, title:^(Open File|Save File|Choose File)$"
+      windowrule = [
+        "float on, match:class ^(pavucontrol)$"
+        "size 900 600, match:class ^(pavucontrol)$"
+        "float on, match:class ^(nm-connection-editor)$"
+        "size 900 600, match:class ^(nm-connection-editor)$"
+        "float on, match:title ^(Open File|Save File|Choose File)$"
       ];
 
       bind = [
@@ -94,7 +92,6 @@ in
         "$mod, F, fullscreen, 0"
         "$mod, V, togglefloating,"
         "$mod, P, pseudo,"
-        "$mod, S, togglesplit,"
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
         "$mod, K, movefocus, u"

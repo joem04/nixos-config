@@ -44,7 +44,6 @@ easy to review and roll back.
 | `Super + Q` | Close focused window |
 | `Super + F` / `Super + V` | Fullscreen / toggle floating |
 | `Super + H/J/K/L` | Focus left/down/up/right |
-| `Super + S` | Toggle split direction |
 | `Super + 1` … `9` | Switch workspace |
 | `Super + Shift + 1` … `9` | Move focused window to workspace |
 | `Super + Shift + S` | Region screenshot, opened in Swappy |
