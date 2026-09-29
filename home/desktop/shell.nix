@@ -40,8 +40,8 @@ in
         margin-left = 12;
         margin-right = 12;
 
-        modules-left = [ "hyprland/workspaces" ];
-        modules-center = [ "hyprland/window" "custom/spotify" ];
+        modules-left = [ "hyprland/workspaces" "custom/spotify" ];
+        modules-center = [ "hyprland/window" ];
         modules-right = [ "custom/discord" "pulseaudio" "network" "battery" "clock" "tray" ];
 
         "hyprland/workspaces" = {
@@ -172,9 +172,8 @@ in
       }
 
       #network {
-        min-width: 40px;
-        /* The Wi-Fi glyph is optically left-heavy; nudge it by one pixel. */
-        padding: 0 0 0 1px;
+        min-width: 38px;
+        padding: 0;
       }
 
       #custom-spotify { color: #${theme.text}; }
