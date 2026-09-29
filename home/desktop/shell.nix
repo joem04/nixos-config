@@ -11,7 +11,8 @@ let
     volumeMedium = glyph "f027";
     volumeHigh = glyph "f028";
     volumeMuted = glyph "f026";
-    wifi = glyph "f1eb";
+    # Material Design Wi-Fi (F05A9) has balanced metrics in the Nerd Font.
+    wifi = builtins.fromJSON ''"\uDB81\uDDA9"'';
     ethernet = glyph "f0e8";
     offline = glyph "f127";
     batteryCharging = glyph "f0e7";
@@ -169,14 +170,6 @@ in
 
       #window {
         color: #${theme.muted};
-      }
-      #network {
-        /* Icon-only network status: no pill to introduce perceived offset. */
-        min-width: 0;
-        margin: 0 2px;
-        padding: 0;
-        background: transparent;
-        border: none;
       }
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
