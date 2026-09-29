@@ -11,8 +11,7 @@ let
     volumeMedium = glyph "f027";
     volumeHigh = glyph "f028";
     volumeMuted = glyph "f026";
-    # Material Design Wi-Fi is visually centered; Font Awesome f1eb has uneven side bearings.
-    wifi = builtins.fromJSON ''"\uDB82\uDD28"'';
+    wifi = glyph "f1eb";
     ethernet = glyph "f0e8";
     offline = glyph "f127";
     batteryCharging = glyph "f0e7";
@@ -171,11 +170,14 @@ in
       #window {
         color: #${theme.muted};
       }
-
       #network {
-        /* Keep the glyph optically centered within its compact pill. */
+        /* Icon-only network status: no pill to introduce perceived offset. */
         min-width: 0;
-        padding: 0 10px;
+        margin: 0 2px;
+        padding: 0;
+        background: transparent;
+        border: none;
+      }
       }
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
