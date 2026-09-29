@@ -1,42 +1,60 @@
-{ ... }:
+{ pkgs, ... }:
 
 let
   theme = import ./theme.nix;
 in
 {
+  # Compact, polished tools for an ergonomic terminal workflow.
+  home.packages = with pkgs; [
+    fastfetch
+    btop
+    eza
+    zoxide
+    bat
+    fzf
+    ripgrep
+    fd
+  ];
+
   programs.alacritty = {
     enable = true;
     settings = {
       window = {
-        opacity = 0.94;
+        opacity = 0.93;
         decorations = "None";
         dynamic_title = true;
+        dynamic_padding = true;
         padding = {
-          x = 12;
-          y = 12;
+          x = 18;
+          y = 16;
         };
       };
 
       font = {
         normal = {
-          family = "${theme.font} Mono";
+          family = "Iosevka Nerd Font Mono";
           style = "Regular";
         };
         bold = {
-          family = "${theme.font} Mono";
+          family = "Iosevka Nerd Font Mono";
           style = "Bold";
         };
         italic = {
-          family = "${theme.font} Mono";
+          family = "Iosevka Nerd Font Mono";
           style = "Italic";
         };
-        size = 11.5;
+        size = 13.0;
+        offset = {
+          x = 0;
+          y = 1;
+        };
       };
 
       cursor = {
         style = "Beam";
         unfocused_hollow = true;
       };
+      mouse.hide_when_typing = true;
       selection.save_to_clipboard = true;
 
       colors = {
@@ -74,5 +92,54 @@ in
         };
       };
     };
+  };
+
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+    settings = {
+      add_newline = false;
+      format = "$directory$git_branch$git_status$line_break$character";
+      directory = {
+        truncation_length = 3;
+        truncation_symbol = ".../";
+        style = "bold white";
+      };
+      git_branch = {
+        symbol = "git:";
+        format = " [$symbol$branch]($style)";
+        style = "white";
+      };
+      git_status = {
+        format = " [$all_status$ahead_behind]($style)";
+        style = "bright-black";
+      };
+      character = {
+        success_symbol = "[>](bold white)";
+        error_symbol = "[>](bold bright-black)";
+      };
+    };
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  programs.bash = {
+    shellAliases = {
+      ls = "eza --icons=auto";
+      ll = "eza --icons=auto -lah --group-directories-first";
+      la = "eza --icons=auto -a";
+      tree = "eza --icons=auto --tree";
+      cat = "bat --paging=never";
+      find = "fd";
+    };
+    initExtra = ''
+      # Show a compact system summary only for interactive terminal sessions.
+      if [[ $- == *i* ]] && command -v fastfetch >/dev/null; then
+        fastfetch
+      fi
+    '';
   };
 }
