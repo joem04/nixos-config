@@ -26,11 +26,6 @@ let
     chmod -R u+w extension
     zip -qr "$out" extension
   '';
-  customUiVsix = pkgs.fetchurl {
-    url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/subframe7536/vsextensions/custom-ui-style/0.7.1/vspackage";
-    name = "custom-ui-style-0.7.1.vsix";
-    hash = "sha256-ObwGEnSIAQxf5+x072ohG/gCsIhWuiy6Me/wJkfuPCM=";
-  };
   extensionManifest = builtins.toJSON {
     name = "lightcrimson-monochrome-theme";
     displayName = "Light Crimson Monochrome";
@@ -228,29 +223,11 @@ let
     "material-icon-theme.hidesExplorerArrows" = true;
     "material-icon-theme.activeIconPack" = "react";
 
-    "custom-ui-style.preferRestart" = true;
-    "custom-ui-style.reloadWithoutPrompting" = true;
-    "custom-ui-style.watch" = false;
-    "custom-ui-style.font.monospace" = "Iosevka Nerd Font Mono";
-    "custom-ui-style.font.sansSerif" = "JetBrainsMono Nerd Font";
-    "custom-ui-style.stylesheet" = {
-      ".monaco-workbench .part.activitybar" = "margin: 8px 0 8px 8px !important; border-radius: 14px !important; overflow: hidden !important;";
-      ".monaco-workbench .part.sidebar" = "margin: 8px 8px 8px 0 !important; border: 1px solid rgba(189, 147, 249, 0.16) !important; border-radius: 14px !important; overflow: hidden !important;";
-      ".monaco-workbench .part.editor" = "padding: 8px 12px 12px 0 !important;";
-      ".monaco-workbench .part.editor > .content .editor-group-container" = "border-radius: 14px !important; overflow: hidden !important; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28) !important;";
-      ".monaco-workbench .part.editor > .content .editor-group-container > .title" = "border-bottom: none !important; padding: 0 8px !important;";
-      ".monaco-workbench .tab.active" = "border-radius: 8px 8px 0 0 !important;";
-      ".monaco-workbench .part.panel" = "margin: 0 12px 8px 0 !important; border-radius: 14px !important; overflow: hidden !important;";
-      ".monaco-workbench .part.statusbar" = "margin: 0 10px 8px 10px !important; border-radius: 10px !important; overflow: hidden !important;";
-      ".monaco-editor .cursor" = "box-shadow: 0 0 12px #bd93f9 !important;";
-      ".monaco-scrollable-element > .shadow.top" = "display: none !important;";
-      ".quick-input-widget" = "top: 22vh !important; border-radius: 14px !important; overflow: hidden !important; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45) !important;";
-    };
 
 
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
-  baselineVersion = "6";
+  baselineVersion = "7";
 in
 {
   home.activation.vscodeMaterialIcons = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -263,15 +240,6 @@ in
     fi
   '';
 
-  home.activation.vscodeCustomUi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    stateDir="$HOME/.local/state/nixos"
-    state="$stateDir/vscode-custom-ui-style-v0.7.1"
-    if [ ! -e "$state" ]; then
-      $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${customUiVsix} --force
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
-    fi
-  '';
 
   home.activation.vscodeAuraTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     stateDir="$HOME/.local/state/nixos"
