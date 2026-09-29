@@ -175,9 +175,7 @@ in
         min-width: 40px;
         text-align: center;
         /* The Wi-Fi glyph is optically left-heavy; nudge it by one pixel. */
-        padding-left: 1px;
-        padding-right: 0;
-        padding: 0;
+        padding: 0 0 0 1px;
       }
 
       #custom-spotify { color: #${theme.text}; }
