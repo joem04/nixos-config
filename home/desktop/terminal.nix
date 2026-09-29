@@ -43,7 +43,7 @@ in
           family = "Iosevka Nerd Font Mono";
           style = "Italic";
         };
-        size = 13.0;
+        size = 14.0;
         offset = {
           x = 0;
           y = 1;
