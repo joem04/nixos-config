@@ -1,13 +1,8 @@
-{ ... }:
+{ pkgs, lib, ... }:
 
 let
   theme = import ./theme.nix;
-in
-{
-  # VS Code's built-in Dark Modern theme remains the syntax base; these
-  # overrides make the chrome, editor, terminal, and code palette match the
-  # monochrome desktop without relying on a mutable Marketplace extension.
-  xdg.configFile."Code/User/settings.json".text = builtins.toJSON {
+  settings = {
     "workbench.colorTheme" = "Default Dark Modern";
     "workbench.iconTheme" = "vs-seti";
     "window.titleBarStyle" = "custom";
@@ -114,4 +109,14 @@ in
       ];
     };
   };
+  settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
+in
+{
+  # VS Code needs to update this file itself. Activation copies the declared
+  # baseline as a regular writable file; the rice is refreshed on each rebuild.
+  home.activation.vscodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    target="$HOME/.config/Code/User/settings.json"
+    $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$target"
+    $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 ${settingsFile} "$target"
+  '';
 }
