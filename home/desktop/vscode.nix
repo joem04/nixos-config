@@ -6,7 +6,7 @@ let
     name = "lightcrimson-monochrome-theme";
     displayName = "Light Crimson Monochrome";
     description = "A monochrome theme matching the NixOS desktop.";
-    version = "1.0.0";
+    version = "1.0.1";
     publisher = "joem04";
     engines.vscode = "^1.85.0";
     categories = [ "Themes" ];
@@ -51,7 +51,7 @@ let
       "sideBar.foreground" = "#${theme.muted}";
       "sideBar.border" = "#${theme.surface}";
       "sideBarTitle.foreground" = "#${theme.text}";
-      "activityBar.background" = "#${theme.background}";
+      "activityBar.background" = "#7020a0";
       "activityBar.foreground" = "#${theme.text}";
       "activityBar.inactiveForeground" = "#${theme.accentDim}";
       "activityBar.border" = "#${theme.surface}";
@@ -73,7 +73,7 @@ let
       "titleBar.activeForeground" = "#${theme.text}";
       "titleBar.inactiveBackground" = "#${theme.background}";
       "titleBar.border" = "#${theme.surface}";
-      "panel.background" = "#${theme.background}";
+      "panel.background" = "#401060";
       "panel.border" = "#${theme.surface}";
       "panelTitle.activeForeground" = "#${theme.text}";
       "panelTitle.inactiveForeground" = "#${theme.muted}";
@@ -118,7 +118,7 @@ let
   };
   extensionManifestFile = pkgs.writeText "lightcrimson-monochrome-package.json" extensionManifest;
   colorThemeFile = pkgs.writeText "lightcrimson-monochrome-color-theme.json" colorTheme;
-  themeVsix = pkgs.runCommand "lightcrimson-monochrome-theme-1.0.0.vsix" {
+  themeVsix = pkgs.runCommand "lightcrimson-monochrome-theme-1.0.1.vsix" {
     nativeBuildInputs = [ pkgs.zip ];
   } ''
     mkdir -p extension/themes
@@ -275,9 +275,8 @@ in
 
   home.activation.vscodeThemeExtension = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     stateDir="$HOME/.local/state/nixos"
-    state="$stateDir/vscode-lightcrimson-theme-v1"
+    state="$stateDir/vscode-lightcrimson-theme-v1.0.1"
     if [ ! -e "$state" ]; then
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -rf "$HOME/.vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0"
       $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${themeVsix} --force
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
