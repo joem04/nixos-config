@@ -11,7 +11,8 @@ let
     volumeMedium = glyph "f027";
     volumeHigh = glyph "f028";
     volumeMuted = glyph "f026";
-    wifi = glyph "f1eb";
+    # Material Design Wi-Fi is visually centered; Font Awesome f1eb has uneven side bearings.
+    wifi = builtins.fromJSON ''"\uDB82\uDD28"'';
     ethernet = glyph "f0e8";
     offline = glyph "f127";
     batteryCharging = glyph "f0e7";
