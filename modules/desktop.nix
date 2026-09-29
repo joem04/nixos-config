@@ -9,7 +9,7 @@
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --asterisks --greeting \"NIXOS // THINKPAD\" --cmd ${pkgs.hyprland}/bin/Hyprland --theme 'border=white;text=white;prompt=white;input=white;time=white;greeting=white;action=white;button=black;container=black'";
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --asterisks --greeting \"NIXOS // THINKPAD\" --cmd ${pkgs.hyprland}/bin/start-hyprland --theme 'border=white;text=white;prompt=white;input=white;time=white;greeting=white;action=white;button=black;container=black'";
       user = "greeter";
     };
   };
