@@ -40,7 +40,8 @@ easy to review and roll back.
 | Shortcut | Action |
 |---|---|
 | `Super + Return` | Terminal |
-| `Super + D` | Application launcher |
+| `Super + Space` | Application launcher |
+| `Super + B` | Firefox |
 | `Super + Q` | Close focused window |
 | `Super + F` / `Super + V` | Fullscreen / toggle floating |
 | `Super + H/J/K/L` | Focus left/down/up/right |

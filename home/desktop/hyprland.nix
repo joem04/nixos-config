@@ -86,7 +86,8 @@ in
 
       bind = [
         "$mod, Return, exec, $terminal"
-        "$mod, D, exec, $menu"
+        "$mod, SPACE, exec, $menu"
+        "$mod, B, exec, firefox"
         "$mod, Q, killactive,"
         "$mod SHIFT, E, exit,"
         "$mod, F, fullscreen, 0"
