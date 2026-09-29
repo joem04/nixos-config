@@ -28,7 +28,8 @@ let
   '';
   customUiVsix = pkgs.fetchurl {
     url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/subframe7536/vsextensions/custom-ui-style/0.7.1/vspackage";
-    hash = "sha256-x42/7kJOKAcGVRsuzR8R5pV3XVmspsUV79gM0/RDTBc=";
+    name = "custom-ui-style-0.7.1.vsix";
+    hash = "sha256-ObwGEnSIAQxf5+x072ohG/gCsIhWuiy6Me/wJkfuPCM=";
   };
   extensionManifest = builtins.toJSON {
     name = "lightcrimson-monochrome-theme";
