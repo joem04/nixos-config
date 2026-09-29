@@ -178,7 +178,6 @@ in
         background: transparent;
         border: none;
       }
-      }
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
 
