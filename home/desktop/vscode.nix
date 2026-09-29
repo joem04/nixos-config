@@ -116,6 +116,16 @@ let
       comment = { foreground = "#${theme.accentDim}"; italic = true; };
     };
   };
+  extensionManifestFile = pkgs.writeText "lightcrimson-monochrome-package.json" extensionManifest;
+  colorThemeFile = pkgs.writeText "lightcrimson-monochrome-color-theme.json" colorTheme;
+  themeVsix = pkgs.runCommand "lightcrimson-monochrome-theme-1.0.0.vsix" {
+    nativeBuildInputs = [ pkgs.zip ];
+  } ''
+    mkdir -p extension/themes
+    cp ${extensionManifestFile} extension/package.json
+    cp ${colorThemeFile} extension/themes/lightcrimson-monochrome-color-theme.json
+    zip -qr "$out" extension
+  '';
   settings = {
     "workbench.colorTheme" = "Light Crimson Monochrome";
     "workbench.iconTheme" = "vs-seti";
@@ -261,8 +271,16 @@ let
   baselineVersion = "3";
 in
 {
-  home.file.".vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0/package.json".text = extensionManifest;
-  home.file.".vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0/themes/lightcrimson-monochrome-color-theme.json".text = colorTheme;
+
+  home.activation.vscodeThemeExtension = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    stateDir="$HOME/.local/state/nixos"
+    state="$stateDir/vscode-lightcrimson-theme-v1"
+    if [ ! -e "$state" ]; then
+      $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${themeVsix} --force
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
+    fi
+  '';
 
   # A versioned baseline lets intentional rice updates apply once without
   # rewriting VS Code's settings while the editor is running on later rebuilds.
