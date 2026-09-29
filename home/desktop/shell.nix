@@ -41,8 +41,8 @@ in
         margin-right = 12;
 
         modules-left = [ "hyprland/workspaces" ];
-        modules-center = [ "hyprland/window" ];
-        modules-right = [ "custom/spotify" "custom/discord" "pulseaudio" "network" "battery" "clock" "tray" ];
+        modules-center = [ "hyprland/window" "custom/spotify" ];
+        modules-right = [ "custom/discord" "pulseaudio" "network" "battery" "clock" "tray" ];
 
         "hyprland/workspaces" = {
           format = "{icon}";
@@ -169,6 +169,11 @@ in
 
       #window {
         color: #${theme.muted};
+      }
+
+      #network {
+        min-width: 40px;
+        padding: 0;
       }
 
       #custom-spotify { color: #${theme.text}; }

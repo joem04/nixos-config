@@ -6,6 +6,18 @@ let
 in
 {
   home.file.".local/share/wallpapers/lightcrimson.svg".source = ./lightcrimson.svg;
+  home.file.".local/bin/close-active-window" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env sh
+      if hyprctl activewindow | grep -qi "class: vesktop"; then
+        pkill -x vesktop
+      else
+        hyprctl dispatch killactive
+      fi
+    '';
+  };
+
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -88,7 +100,7 @@ in
         "$mod, Return, exec, $terminal"
         "$mod, SPACE, exec, $menu"
         "$mod, B, exec, firefox"
-        "$mod, Q, killactive,"
+        "$mod, Q, exec, ${config.home.homeDirectory}/.local/bin/close-active-window"
         "$mod SHIFT, E, exit,"
         "$mod, F, fullscreen, 0"
         "$mod, V, togglefloating,"

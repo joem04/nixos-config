@@ -42,7 +42,7 @@ easy to review and roll back.
 | `Super + Return` | Terminal |
 | `Super + Space` | Application launcher |
 | `Super + B` | Firefox |
-| `Super + Q` | Close focused window |
+| `Super + Q` | Close focused window (or fully quit Vesktop) |
 | `Super + F` / `Super + V` | Fullscreen / toggle floating |
 | `Super + H/J/K/L` | Focus left/down/up/right |
 | `Super + 1` … `9` | Switch workspace |
