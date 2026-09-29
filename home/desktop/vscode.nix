@@ -18,6 +18,18 @@ let
     chmod -R u+w extension
     zip -qr "$out" extension
   '';
+  materialIconVsix = pkgs.runCommand "material-icon-theme-5.33.1.vsix" {
+    nativeBuildInputs = [ pkgs.zip ];
+  } ''
+    mkdir -p extension
+    cp -r ${pkgs.vscode-extensions.pkief.material-icon-theme}/share/vscode/extensions/PKief.material-icon-theme/. extension/
+    chmod -R u+w extension
+    zip -qr "$out" extension
+  '';
+  customUiVsix = pkgs.fetchurl {
+    url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/subframe7536/vsextensions/custom-ui-style/0.7.1/vspackage";
+    hash = "sha256-x42/7kJOKAcGVRsuzR8R5pV3XVmspsUV79gM0/RDTBc=";
+  };
   extensionManifest = builtins.toJSON {
     name = "lightcrimson-monochrome-theme";
     displayName = "Light Crimson Monochrome";
@@ -145,7 +157,7 @@ let
   '';
   settings = {
     "workbench.colorTheme" = "Aura Dracula Spirit (Soft)";
-    "workbench.iconTheme" = "vs-seti";
+    "workbench.iconTheme" = "material-icon-theme";
     "window.titleBarStyle" = "native";
     "window.commandCenter" = false;
     "window.customTitleBarVisibility" = "never";
@@ -166,12 +178,15 @@ let
     "git.decorations.enabled" = false;
     "workbench.tree.indent" = 8;
 
-    "editor.fontFamily" = "${theme.font}, monospace";
-    "editor.fontLigatures" = false;
-    "editor.fontSize" = 15;
-    "editor.lineHeight" = 0;
+    "editor.fontFamily" = "Iosevka Nerd Font Mono, JetBrainsMono Nerd Font, monospace";
+    "editor.fontLigatures" = true;
+    "editor.fontSize" = 16;
+    "editor.lineHeight" = 25;
     "editor.cursorStyle" = "line";
-    "editor.cursorBlinking" = "solid";
+    "editor.cursorBlinking" = "phase";
+    "editor.cursorSmoothCaretAnimation" = "on";
+    "editor.smoothScrolling" = true;
+    "workbench.list.smoothScrolling" = true;
     "editor.minimap.enabled" = false;
     "editor.renderWhitespace" = "none";
     "editor.guides.indentation" = false;
@@ -192,6 +207,9 @@ let
     "editor.scrollbar.vertical" = "hidden";
     "editor.overviewRulerBorder" = false;
     "editor.hideCursorInOverviewRuler" = true;
+    "workbench.editor.tabSizing" = "shrink";
+    "workbench.editor.tabCloseButton" = "left";
+    "workbench.editor.wrapTabs" = true;
     "editor.tabSize" = 2;
     "editor.detectIndentation" = false;
     "files.trimTrailingWhitespace" = true;
@@ -201,16 +219,59 @@ let
     "update.mode" = "none";
     "extensions.ignoreRecommendations" = true;
 
-    "terminal.integrated.fontFamily" = "${theme.font}, monospace";
-    "terminal.integrated.fontSize" = 14;
+    "terminal.integrated.fontFamily" = "Iosevka Nerd Font Mono, monospace";
+    "terminal.integrated.fontSize" = 15;
     "terminal.integrated.cursorStyle" = "line";
+    "terminal.integrated.smoothScrolling" = true;
+
+    "material-icon-theme.hidesExplorerArrows" = true;
+    "material-icon-theme.activeIconPack" = "react";
+
+    "custom-ui-style.preferRestart" = true;
+    "custom-ui-style.reloadWithoutPrompting" = true;
+    "custom-ui-style.watch" = false;
+    "custom-ui-style.font.monospace" = "Iosevka Nerd Font Mono";
+    "custom-ui-style.font.sansSerif" = "JetBrainsMono Nerd Font";
+    "custom-ui-style.stylesheet" = {
+      ".monaco-workbench .part.activitybar" = "margin: 8px 0 8px 8px !important; border-radius: 14px !important; overflow: hidden !important;";
+      ".monaco-workbench .part.sidebar" = "margin: 8px 8px 8px 0 !important; border: 1px solid rgba(189, 147, 249, 0.16) !important; border-radius: 14px !important; overflow: hidden !important;";
+      ".monaco-workbench .part.editor" = "padding: 8px 12px 12px 0 !important;";
+      ".monaco-workbench .part.editor > .content .editor-group-container" = "border-radius: 14px !important; overflow: hidden !important; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28) !important;";
+      ".monaco-workbench .part.editor > .content .editor-group-container > .title" = "border-bottom: none !important; padding: 0 8px !important;";
+      ".monaco-workbench .tab.active" = "border-radius: 8px 8px 0 0 !important;";
+      ".monaco-workbench .part.panel" = "margin: 0 12px 8px 0 !important; border-radius: 14px !important; overflow: hidden !important;";
+      ".monaco-workbench .part.statusbar" = "margin: 0 10px 8px 10px !important; border-radius: 10px !important; overflow: hidden !important;";
+      ".monaco-editor .cursor" = "box-shadow: 0 0 12px #bd93f9 !important;";
+      ".monaco-scrollable-element > .shadow.top" = "display: none !important;";
+      ".quick-input-widget" = "top: 22vh !important; border-radius: 14px !important; overflow: hidden !important; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45) !important;";
+    };
 
 
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
-  baselineVersion = "5";
+  baselineVersion = "6";
 in
 {
+  home.activation.vscodeMaterialIcons = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    stateDir="$HOME/.local/state/nixos"
+    state="$stateDir/vscode-material-icon-theme-v5.33.1"
+    if [ ! -e "$state" ]; then
+      $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${materialIconVsix} --force
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
+    fi
+  '';
+
+  home.activation.vscodeCustomUi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    stateDir="$HOME/.local/state/nixos"
+    state="$stateDir/vscode-custom-ui-style-v0.7.1"
+    if [ ! -e "$state" ]; then
+      $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${customUiVsix} --force
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
+    fi
+  '';
+
   home.activation.vscodeAuraTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     stateDir="$HOME/.local/state/nixos"
     state="$stateDir/vscode-aura-spirit-dracula-v0.1.12"
