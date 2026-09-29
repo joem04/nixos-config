@@ -2,6 +2,22 @@
 
 let
   theme = import ./theme.nix;
+  auraSource = pkgs.fetchFromGitHub {
+    owner = "JoseMurilloc";
+    repo = "aura-spirit-dracula";
+    rev = "27348d4cebc53bca3cf3873ad7232cee14a81eaa";
+    hash = "sha256-SuLm3G0PrAqpctPskt8mVvB7VogA0mC8LHVgiuNueTU=";
+  };
+  auraVsix = pkgs.runCommand "aura-spirit-dracula-0.1.12.vsix" {
+    nativeBuildInputs = [ pkgs.zip ];
+  } ''
+    mkdir -p extension
+    cp ${auraSource}/package.json extension/package.json
+    cp ${auraSource}/logo.png extension/logo.png
+    cp -r ${auraSource}/themes extension/themes
+    chmod -R u+w extension
+    zip -qr "$out" extension
+  '';
   extensionManifest = builtins.toJSON {
     name = "lightcrimson-monochrome-theme";
     displayName = "Light Crimson Monochrome";
@@ -128,7 +144,7 @@ let
     zip -qr "$out" extension
   '';
   settings = {
-    "workbench.colorTheme" = "Light Crimson Monochrome";
+    "workbench.colorTheme" = "Aura Dracula Spirit (Soft)";
     "workbench.iconTheme" = "vs-seti";
     "window.titleBarStyle" = "native";
     "window.commandCenter" = false;
@@ -269,9 +285,18 @@ let
     };
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
-  baselineVersion = "3";
+  baselineVersion = "4";
 in
 {
+  home.activation.vscodeAuraTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    stateDir="$HOME/.local/state/nixos"
+    state="$stateDir/vscode-aura-spirit-dracula-v0.1.12"
+    if [ ! -e "$state" ]; then
+      $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${auraVsix} --force
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
+    fi
+  '';
 
   home.activation.vscodeThemeExtension = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     stateDir="$HOME/.local/state/nixos"
