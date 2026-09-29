@@ -112,11 +112,13 @@ let
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
 in
 {
-  # VS Code needs to update this file itself. Activation copies the declared
-  # baseline as a regular writable file; the rice is refreshed on each rebuild.
+  # Seed a writable file once. Subsequent rebuilds must not rewrite it while
+  # VS Code is open, otherwise its settings editor reports unsaved changes.
   home.activation.vscodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.config/Code/User/settings.json"
-    $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$target"
-    $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 ${settingsFile} "$target"
+    if [ -L "$target" ] || [ ! -e "$target" ]; then
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$target"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 ${settingsFile} "$target"
+    fi
   '';
 }
