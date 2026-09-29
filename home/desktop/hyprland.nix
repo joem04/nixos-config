@@ -11,7 +11,7 @@ in
     text = ''
       #!/usr/bin/env sh
       if hyprctl activewindow | grep -qi "class: vesktop"; then
-        pkill -x vesktop
+        pkill -f '[V]esktop/resources/app.asar' || true
       else
         hyprctl dispatch killactive
       fi
