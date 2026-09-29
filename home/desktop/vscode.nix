@@ -205,87 +205,10 @@ let
     "terminal.integrated.fontSize" = 14;
     "terminal.integrated.cursorStyle" = "line";
 
-    "workbench.colorCustomizations" = {
-      "foreground" = "#${theme.text}";
-      "focusBorder" = "#${theme.accent}";
-      "selection.background" = "#${theme.surfaceBright}";
-      "textLink.foreground" = "#${theme.text}";
 
-      "editor.background" = "#${theme.background}";
-      "editor.foreground" = "#${theme.text}";
-      "editorCursor.foreground" = "#${theme.accentStrong}";
-      "editor.lineHighlightBackground" = "#${theme.backgroundAlt}";
-      "editor.selectionBackground" = "#${theme.surfaceBright}";
-      "editor.inactiveSelectionBackground" = "#${theme.surface}";
-      "editorIndentGuide.background1" = "#${theme.surface}";
-      "editorIndentGuide.activeBackground1" = "#${theme.accentDim}";
-      "editorWhitespace.foreground" = "#${theme.surfaceBright}";
-      "editorGroup.border" = "#${theme.surface}";
-      "editorGroupHeader.tabsBackground" = "#${theme.background}";
-
-      "sideBar.background" = "#${theme.backgroundAlt}";
-      "sideBar.foreground" = "#${theme.muted}";
-      "sideBar.border" = "#${theme.surface}";
-      "sideBarTitle.foreground" = "#${theme.text}";
-      "list.activeSelectionBackground" = "#${theme.surfaceBright}";
-      "list.hoverBackground" = "#${theme.surface}";
-      "list.focusOutline" = "#${theme.accentDim}";
-
-      "tab.activeBackground" = "#${theme.surface}";
-      "tab.activeForeground" = "#${theme.text}";
-      "tab.inactiveBackground" = "#${theme.background}";
-      "tab.inactiveForeground" = "#${theme.muted}";
-      "tab.border" = "#${theme.surface}";
-      "tab.activeBorderTop" = "#${theme.accentStrong}";
-
-      "statusBar.background" = "#${theme.backgroundAlt}";
-      "statusBar.foreground" = "#${theme.muted}";
-      "statusBar.border" = "#${theme.surface}";
-      "titleBar.activeBackground" = "#${theme.background}";
-      "titleBar.activeForeground" = "#${theme.text}";
-      "titleBar.inactiveBackground" = "#${theme.background}";
-      "titleBar.border" = "#${theme.surface}";
-
-      "terminal.background" = "#${theme.background}";
-      "terminal.foreground" = "#${theme.text}";
-      "terminalCursor.foreground" = "#${theme.accentStrong}";
-      "terminal.ansiBlack" = "#${theme.background}";
-      "terminal.ansiBrightBlack" = "#${theme.accentDim}";
-      "terminal.ansiWhite" = "#${theme.text}";
-      "terminal.ansiBrightWhite" = "#${theme.accentStrong}";
-    };
-
-    "editor.tokenColorCustomizations" = {
-      "textMateRules" = [
-        {
-          scope = [ "comment" "punctuation.definition.comment" ];
-          settings = { foreground = "#${theme.accentDim}"; fontStyle = "italic"; };
-        }
-        {
-          scope = [ "keyword" "storage" "storage.type" "keyword.control" ];
-          settings = { foreground = "#${theme.text}"; fontStyle = "bold"; };
-        }
-        {
-          scope = [ "string" "constant.numeric" "constant.language" ];
-          settings = { foreground = "#${theme.muted}"; };
-        }
-        {
-          scope = [ "entity.name.function" "support.function" "variable.function" ];
-          settings = { foreground = "#${theme.accentStrong}"; };
-        }
-        {
-          scope = [ "entity.name.type" "support.type" "entity.name.class" ];
-          settings = { foreground = "#${theme.accent}"; };
-        }
-        {
-          scope = [ "variable" "variable.parameter" "identifier" ];
-          settings = { foreground = "#${theme.text}"; };
-        }
-      ];
-    };
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
-  baselineVersion = "4";
+  baselineVersion = "5";
 in
 {
   home.activation.vscodeAuraTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
