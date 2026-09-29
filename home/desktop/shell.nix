@@ -140,6 +140,7 @@ in
 
       #workspaces,
       #window,
+      #network { padding: 0 11px 0 9px; }
       #custom-spotify,
       #custom-discord,
       #pulseaudio,
@@ -171,6 +172,7 @@ in
       #window {
         color: #${theme.muted};
       }
+      #network { padding: 0 11px 0 9px; }
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
 
