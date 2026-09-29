@@ -172,10 +172,10 @@ in
       }
 
       #network {
-        min-width: 38px;
-        padding: 0;
+        /* Keep the glyph optically centered within its compact pill. */
+        min-width: 0;
+        padding: 0 6px 0 14px;
       }
-
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
 
