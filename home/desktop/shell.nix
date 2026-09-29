@@ -173,7 +173,6 @@ in
 
       #network {
         min-width: 40px;
-        text-align: center;
         /* The Wi-Fi glyph is optically left-heavy; nudge it by one pixel. */
         padding: 0 0 0 1px;
       }
