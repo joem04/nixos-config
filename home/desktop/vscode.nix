@@ -261,8 +261,8 @@ let
   baselineVersion = "3";
 in
 {
-  home.file.".vscode/extensions/lightcrimson-monochrome-theme-1.0.0/package.json".text = extensionManifest;
-  home.file.".vscode/extensions/lightcrimson-monochrome-theme-1.0.0/themes/lightcrimson-monochrome-color-theme.json".text = colorTheme;
+  home.file.".vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0/package.json".text = extensionManifest;
+  home.file.".vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0/themes/lightcrimson-monochrome-color-theme.json".text = colorTheme;
 
   # A versioned baseline lets intentional rice updates apply once without
   # rewriting VS Code's settings while the editor is running on later rebuilds.
