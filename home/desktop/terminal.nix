@@ -107,12 +107,14 @@ in
       };
       hostname = {
         ssh_only = false;
+        style = "bold white";
         format = "[@$hostname]($style)";
       };
 
       directory = {
         truncation_length = 3;
         truncation_symbol = ".../";
+        style = "bold white";
       };
       git_branch = {
         symbol = "git:";
