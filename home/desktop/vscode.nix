@@ -151,17 +151,17 @@ in
   # rewriting VS Code's settings while the editor is running on later rebuilds.
   home.activation.vscodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.config/Code/User/settings.json"
-    state="$HOME/.local/state/nixos/vscode-rice-settings-version"
-    currentVersion="$(${pkgs.coreutils}/bin/cat "$state" 2>/dev/null || true)"
+    stateDir="$HOME/.local/state/nixos"
+    state="$stateDir/vscode-rice-settings-v${baselineVersion}"
 
-    if [ -L "$target" ] || [ ! -e "$target" ] || [ "$currentVersion" != "${baselineVersion}" ]; then
+    if [ -L "$target" ] || [ ! -e "$target" ] || [ ! -e "$state" ]; then
       if [ -f "$target" ] && [ ! -L "$target" ]; then
         $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp -a "$target" "$target.nixos-rice-backup"
       fi
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$target"
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 ${settingsFile} "$target"
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d "$(dirname "$state")"
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/sh -c 'printf "%s\\n" "$1" > "$2"' -- "${baselineVersion}" "$state"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
     fi
   '';
 }
