@@ -174,7 +174,7 @@ in
       #network {
         /* Keep the glyph optically centered within its compact pill. */
         min-width: 0;
-        padding: 0 6px 0 14px;
+        padding: 0 10px;
       }
       #custom-spotify { color: #${theme.text}; }
       #custom-discord { color: #${theme.text}; }
