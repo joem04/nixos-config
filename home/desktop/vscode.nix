@@ -124,6 +124,7 @@ let
     mkdir -p extension/themes
     cp ${extensionManifestFile} extension/package.json
     cp ${colorThemeFile} extension/themes/lightcrimson-monochrome-color-theme.json
+    chmod -R u+w extension
     zip -qr "$out" extension
   '';
   settings = {
@@ -276,6 +277,7 @@ in
     stateDir="$HOME/.local/state/nixos"
     state="$stateDir/vscode-lightcrimson-theme-v1"
     if [ ! -e "$state" ]; then
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -rf "$HOME/.vscode/extensions/joem04.lightcrimson-monochrome-theme-1.0.0"
       $DRY_RUN_CMD ${pkgs.vscode}/bin/code --install-extension ${themeVsix} --force
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$stateDir"
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/touch "$state"
