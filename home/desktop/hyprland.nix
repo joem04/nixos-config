@@ -74,7 +74,8 @@ in
         follow_mouse = 1;
         sensitivity = 0.25;
         touchpad = {
-          natural_scroll = true;
+          natural_scroll = false;
+          scroll_factor = 0.5;
           tap-to-click = true;
           drag_lock = true;
         };
