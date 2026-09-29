@@ -3,10 +3,16 @@
 {
   programs.hyprland.enable = true;
 
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  services.displayManager.defaultSession = "hyprland";
-
+  # A minimal console login replaces the graphical SDDM greeter. Tuigreet
+  # authenticates through PAM, then launches the Nix-managed Hyprland session.
+  services.displayManager.sddm.enable = false;
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --asterisks --greeting \"NIXOS // THINKPAD\" --cmd ${pkgs.hyprland}/bin/Hyprland --theme 'border=white;text=white;prompt=white;input=white;time=white;greeting=white;action=white;button=black;container=black'";
+      user = "greeter";
+    };
+  };
   environment.systemPackages = with pkgs; [ vscode git alacritty firefox ];
 
   # System-wide programming and "ricing" fonts, including Nerd Font glyphs

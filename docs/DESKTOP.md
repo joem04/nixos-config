@@ -61,3 +61,9 @@ easy to review and roll back.
 
 To change the accent palette, edit `theme.nix` and rebuild. Do not edit the
 files under `~/.config` directly; Home Manager regenerates them.
+
+## Login
+
+The machine uses `greetd` with `tuigreet` instead of a graphical display
+manager. The monochrome terminal greeter shows the time and starts Hyprland
+when `joe` signs in. Use `Ctrl + Alt + F2` through `F6` for recovery TTYs.
