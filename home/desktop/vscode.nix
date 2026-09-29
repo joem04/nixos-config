@@ -2,8 +2,122 @@
 
 let
   theme = import ./theme.nix;
+  extensionManifest = builtins.toJSON {
+    name = "lightcrimson-monochrome-theme";
+    displayName = "Light Crimson Monochrome";
+    description = "A monochrome theme matching the NixOS desktop.";
+    version = "1.0.0";
+    publisher = "joem04";
+    engines.vscode = "^1.85.0";
+    categories = [ "Themes" ];
+    contributes.themes = [ {
+      label = "Light Crimson Monochrome";
+      uiTheme = "vs-dark";
+      path = "./themes/lightcrimson-monochrome-color-theme.json";
+    } ];
+  };
+  colorTheme = builtins.toJSON {
+    name = "Light Crimson Monochrome";
+    type = "dark";
+    colors = {
+      foreground = "#${theme.text}";
+      descriptionForeground = "#${theme.muted}";
+      focusBorder = "#${theme.accent}";
+      "textLink.foreground" = "#${theme.text}";
+      "textLink.activeForeground" = "#${theme.accentStrong}";
+
+      "editor.background" = "#${theme.background}";
+      "editor.foreground" = "#${theme.text}";
+      "editorCursor.foreground" = "#${theme.accentStrong}";
+      "editor.lineHighlightBackground" = "#${theme.backgroundAlt}";
+      "editor.selectionBackground" = "#${theme.surfaceBright}";
+      "editor.inactiveSelectionBackground" = "#${theme.surface}";
+      "editor.findMatchBackground" = "#${theme.surfaceBright}";
+      "editor.findMatchHighlightBackground" = "#${theme.surface}";
+      "editor.wordHighlightBackground" = "#${theme.surface}";
+      "editorIndentGuide.background1" = "#${theme.surface}";
+      "editorIndentGuide.activeBackground1" = "#${theme.accentDim}";
+      "editorWhitespace.foreground" = "#${theme.surfaceBright}";
+      "editorGroup.border" = "#${theme.surface}";
+      "editorGroupHeader.tabsBackground" = "#${theme.background}";
+      "editorWidget.background" = "#${theme.backgroundAlt}";
+      "editorWidget.border" = "#${theme.surfaceBright}";
+      "editorSuggestWidget.background" = "#${theme.backgroundAlt}";
+      "editorSuggestWidget.selectedBackground" = "#${theme.surfaceBright}";
+      "editorHoverWidget.background" = "#${theme.backgroundAlt}";
+      "editorHoverWidget.border" = "#${theme.surfaceBright}";
+
+      "sideBar.background" = "#${theme.backgroundAlt}";
+      "sideBar.foreground" = "#${theme.muted}";
+      "sideBar.border" = "#${theme.surface}";
+      "sideBarTitle.foreground" = "#${theme.text}";
+      "activityBar.background" = "#${theme.background}";
+      "activityBar.foreground" = "#${theme.text}";
+      "activityBar.inactiveForeground" = "#${theme.accentDim}";
+      "activityBar.border" = "#${theme.surface}";
+      "list.activeSelectionBackground" = "#${theme.surfaceBright}";
+      "list.activeSelectionForeground" = "#${theme.text}";
+      "list.hoverBackground" = "#${theme.surface}";
+      "list.focusOutline" = "#${theme.accentDim}";
+
+      "tab.activeBackground" = "#${theme.surface}";
+      "tab.activeForeground" = "#${theme.text}";
+      "tab.inactiveBackground" = "#${theme.background}";
+      "tab.inactiveForeground" = "#${theme.muted}";
+      "tab.border" = "#${theme.surface}";
+      "tab.activeBorderTop" = "#${theme.accentStrong}";
+      "statusBar.background" = "#${theme.backgroundAlt}";
+      "statusBar.foreground" = "#${theme.muted}";
+      "statusBar.border" = "#${theme.surface}";
+      "titleBar.activeBackground" = "#${theme.background}";
+      "titleBar.activeForeground" = "#${theme.text}";
+      "titleBar.inactiveBackground" = "#${theme.background}";
+      "titleBar.border" = "#${theme.surface}";
+      "panel.background" = "#${theme.background}";
+      "panel.border" = "#${theme.surface}";
+      "panelTitle.activeForeground" = "#${theme.text}";
+      "panelTitle.inactiveForeground" = "#${theme.muted}";
+      "terminal.background" = "#${theme.background}";
+      "terminal.foreground" = "#${theme.text}";
+      "terminalCursor.foreground" = "#${theme.accentStrong}";
+      "terminal.ansiBlack" = "#${theme.background}";
+      "terminal.ansiBrightBlack" = "#${theme.accentDim}";
+      "terminal.ansiWhite" = "#${theme.text}";
+      "terminal.ansiBrightWhite" = "#${theme.accentStrong}";
+      "gitDecoration.addedResourceForeground" = "#${theme.text}";
+      "gitDecoration.modifiedResourceForeground" = "#${theme.muted}";
+      "gitDecoration.deletedResourceForeground" = "#${theme.accentDim}";
+      "notificationCenterHeader.background" = "#${theme.backgroundAlt}";
+      "notifications.background" = "#${theme.backgroundAlt}";
+      "notifications.border" = "#${theme.surfaceBright}";
+    };
+    tokenColors = [
+      { scope = [ "comment" "punctuation.definition.comment" ]; settings = { foreground = "#${theme.accentDim}"; fontStyle = "italic"; }; }
+      { scope = [ "keyword" "storage" "storage.type" "keyword.control" "keyword.operator" ]; settings = { foreground = "#${theme.text}"; fontStyle = "bold"; }; }
+      { scope = [ "string" "constant.numeric" "constant.language" "constant.character" ]; settings = { foreground = "#${theme.muted}"; }; }
+      { scope = [ "entity.name.function" "support.function" "variable.function" ]; settings = { foreground = "#${theme.accentStrong}"; }; }
+      { scope = [ "entity.name.type" "support.type" "entity.name.class" "entity.name.namespace" ]; settings = { foreground = "#${theme.accent}"; }; }
+      { scope = [ "variable" "variable.parameter" "identifier" ]; settings = { foreground = "#${theme.text}"; }; }
+      { scope = [ "punctuation" "meta.brace" ]; settings = { foreground = "#${theme.muted}"; }; }
+      { scope = [ "invalid" "invalid.illegal" ]; settings = { foreground = "#${theme.text}"; background = "#${theme.surfaceBright}"; }; }
+    ];
+    semanticTokenColors = {
+      namespace = "#${theme.accent}";
+      class = "#${theme.accent}";
+      type = "#${theme.accent}";
+      function = "#${theme.accentStrong}";
+      method = "#${theme.accentStrong}";
+      variable = "#${theme.text}";
+      parameter = "#${theme.muted}";
+      property = "#${theme.text}";
+      keyword = "#${theme.text}";
+      string = "#${theme.muted}";
+      number = "#${theme.muted}";
+      comment = { foreground = "#${theme.accentDim}"; italic = true; };
+    };
+  };
   settings = {
-    "workbench.colorTheme" = "Default Dark Modern";
+    "workbench.colorTheme" = "Light Crimson Monochrome";
     "workbench.iconTheme" = "vs-seti";
     "window.titleBarStyle" = "native";
     "window.commandCenter" = false;
@@ -144,9 +258,12 @@ let
     };
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
-  baselineVersion = "2";
+  baselineVersion = "3";
 in
 {
+  home.file.".vscode/extensions/lightcrimson-monochrome-theme-1.0.0/package.json".text = extensionManifest;
+  home.file.".vscode/extensions/lightcrimson-monochrome-theme-1.0.0/themes/lightcrimson-monochrome-color-theme.json".text = colorTheme;
+
   # A versioned baseline lets intentional rice updates apply once without
   # rewriting VS Code's settings while the editor is running on later rebuilds.
   home.activation.vscodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
