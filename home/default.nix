@@ -34,6 +34,8 @@
     brightnessctl
     networkmanagerapplet
     libnotify
+    spotify
+    vesktop
   ];
 
   # Standard visible cursor theme for Wayland, GTK, and XWayland applications.

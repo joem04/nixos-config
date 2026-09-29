@@ -22,6 +22,8 @@ let
     batteryHigh = glyph "f241";
     batteryFull = glyph "f240";
     clock = glyph "f017";
+    spotify = glyph "f1bc";
+    discord = glyph "f392";
   };
   theme = import ./theme.nix;
 in
@@ -40,7 +42,7 @@ in
 
         modules-left = [ "hyprland/workspaces" ];
         modules-center = [ "hyprland/window" ];
-        modules-right = [ "pulseaudio" "network" "battery" "clock" "tray" ];
+        modules-right = [ "custom/spotify" "custom/discord" "pulseaudio" "network" "battery" "clock" "tray" ];
 
         "hyprland/workspaces" = {
           format = "{icon}";
@@ -50,6 +52,28 @@ in
           };
           all-outputs = true;
           persistent-workspaces = { "*" = 5; };
+        };
+
+        "custom/spotify" = {
+          format = "{}";
+          exec-if = "playerctl --player=spotify status >/dev/null 2>&1";
+          exec = "playerctl --player=spotify metadata --format '${icons.spotify}  {{artist}} - {{title}}'";
+          interval = 2;
+          max-length = 42;
+          on-click = "playerctl --player=spotify play-pause";
+          on-click-right = "spotify";
+          tooltip = true;
+          tooltip-format = "Spotify - left click to play/pause";
+        };
+
+        "custom/discord" = {
+          format = "{}";
+          exec-if = "pgrep -x vesktop >/dev/null";
+          exec = "printf '${icons.discord}'";
+          interval = 5;
+          on-click = "vesktop";
+          tooltip = true;
+          tooltip-format = "Vesktop (Discord)";
         };
 
         "hyprland/window" = {
@@ -68,9 +92,9 @@ in
         };
 
         network = {
-          format-wifi = "${icons.wifi}  {signalStrength}%";
-          format-ethernet = "${icons.ethernet}  connected";
-          format-disconnected = "${icons.offline}  offline";
+          format-wifi = icons.wifi;
+          format-ethernet = icons.ethernet;
+          format-disconnected = icons.offline;
           tooltip-format = "{ifname}: {ipaddr}";
           on-click = "nm-connection-editor";
         };
@@ -115,6 +139,8 @@ in
 
       #workspaces,
       #window,
+      #custom-spotify,
+      #custom-discord,
       #pulseaudio,
       #network,
       #battery,
@@ -144,6 +170,9 @@ in
       #window {
         color: #${theme.muted};
       }
+
+      #custom-spotify { color: #${theme.text}; }
+      #custom-discord { color: #${theme.text}; }
 
       #clock {
         color: #${theme.accent};
