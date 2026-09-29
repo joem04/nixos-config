@@ -5,6 +5,7 @@
     ./desktop/hyprland.nix
     ./desktop/shell.nix
     ./desktop/terminal.nix
+    ./desktop/vscode.nix
   ];
 
   home.username = "joe";

@@ -67,3 +67,9 @@ files under `~/.config` directly; Home Manager regenerates them.
 The machine uses `greetd` with `tuigreet` instead of a graphical display
 manager. The monochrome terminal greeter shows the time and starts Hyprland
 when `joe` signs in. Use `Ctrl + Alt + F2` through `F6` for recovery TTYs.
+
+## VS Code
+
+VS Code uses the built-in Dark Modern theme with declarative monochrome color
+and syntax overrides from `home/desktop/vscode.nix`. Restart VS Code after a
+rebuild to load the generated settings.
