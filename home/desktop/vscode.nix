@@ -5,26 +5,60 @@ let
   settings = {
     "workbench.colorTheme" = "Default Dark Modern";
     "workbench.iconTheme" = "vs-seti";
-    "window.titleBarStyle" = "custom";
+    "window.titleBarStyle" = "native";
     "window.commandCenter" = false;
-    "workbench.activityBar.location" = "hidden";
+    "window.customTitleBarVisibility" = "never";
+    "workbench.activityBar.location" = "default";
     "workbench.editor.labelFormat" = "short";
     "workbench.editor.enablePreview" = false;
     "workbench.startupEditor" = "none";
-    "workbench.tree.indent" = 12;
+    "workbench.editor.showTabs" = "multiple";
+    "workbench.statusBar.visible" = true;
+    "workbench.tips.enabled" = false;
+    "workbench.sideBar.location" = "right";
+    "workbench.tree.enableStickyScroll" = false;
+    "workbench.tree.renderIndentGuides" = "none";
+    "explorer.compactFolders" = false;
+    "explorer.confirmDragAndDrop" = false;
+    "explorer.confirmDelete" = false;
+    "explorer.decorations.badges" = false;
+    "git.decorations.enabled" = false;
+    "workbench.tree.indent" = 8;
 
     "editor.fontFamily" = "${theme.font}, monospace";
-    "editor.fontLigatures" = true;
+    "editor.fontLigatures" = false;
     "editor.fontSize" = 15;
-    "editor.lineHeight" = 24;
+    "editor.lineHeight" = 0;
     "editor.cursorStyle" = "line";
-    "editor.cursorBlinking" = "smooth";
+    "editor.cursorBlinking" = "solid";
     "editor.minimap.enabled" = false;
-    "editor.renderWhitespace" = "selection";
+    "editor.renderWhitespace" = "none";
     "editor.guides.indentation" = false;
     "editor.bracketPairColorization.enabled" = false;
     "editor.stickyScroll.enabled" = false;
     "breadcrumbs.enabled" = false;
+    "editor.colorDecorators" = false;
+    "editor.codeLens" = false;
+    "editor.links" = false;
+    "editor.matchBrackets" = "never";
+    "editor.lightbulb.enabled" = "off";
+    "editor.hover.enabled" = false;
+    "editor.showFoldingControls" = "never";
+    "editor.renderLineHighlight" = "none";
+    "editor.occurrencesHighlight" = "off";
+    "editor.selectionHighlight" = false;
+    "editor.scrollbar.horizontal" = "hidden";
+    "editor.scrollbar.vertical" = "hidden";
+    "editor.overviewRulerBorder" = false;
+    "editor.hideCursorInOverviewRuler" = true;
+    "editor.tabSize" = 2;
+    "editor.detectIndentation" = false;
+    "files.trimTrailingWhitespace" = true;
+    "files.insertFinalNewline" = true;
+    "files.autoSave" = "afterDelay";
+    "scm.diffDecorations" = "none";
+    "update.mode" = "none";
+    "extensions.ignoreRecommendations" = true;
 
     "terminal.integrated.fontFamily" = "${theme.font}, monospace";
     "terminal.integrated.fontSize" = 14;
@@ -110,15 +144,24 @@ let
     };
   };
   settingsFile = pkgs.writeText "vscode-settings.json" (builtins.toJSON settings);
+  baselineVersion = "2";
 in
 {
-  # Seed a writable file once. Subsequent rebuilds must not rewrite it while
-  # VS Code is open, otherwise its settings editor reports unsaved changes.
+  # A versioned baseline lets intentional rice updates apply once without
+  # rewriting VS Code's settings while the editor is running on later rebuilds.
   home.activation.vscodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.config/Code/User/settings.json"
-    if [ -L "$target" ] || [ ! -e "$target" ]; then
+    state="$HOME/.local/state/nixos/vscode-rice-settings-version"
+    currentVersion="$(${pkgs.coreutils}/bin/cat "$state" 2>/dev/null || true)"
+
+    if [ -L "$target" ] || [ ! -e "$target" ] || [ "$currentVersion" != "${baselineVersion}" ]; then
+      if [ -f "$target" ] && [ ! -L "$target" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp -a "$target" "$target.nixos-rice-backup"
+      fi
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$target"
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 ${settingsFile} "$target"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d "$(dirname "$state")"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/sh -c 'printf "%s\\n" "$1" > "$2"' -- "${baselineVersion}" "$state"
     fi
   '';
 }
