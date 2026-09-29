@@ -99,22 +99,20 @@ in
     enableBashIntegration = true;
     settings = {
       add_newline = false;
-      format = "$username$hostname $directory$git_branch$git_status$line_break$character";
+      format = "$username$hostname $directory$git_branch$git_status $character";
       username = {
         show_always = true;
+        style_user = "bold white";
         format = "[$user]($style)";
-        style = "bold white";
       };
       hostname = {
         ssh_only = false;
         format = "[@$hostname]($style)";
-        style = "bold white";
       };
 
       directory = {
         truncation_length = 3;
         truncation_symbol = ".../";
-        style = "bold white";
       };
       git_branch = {
         symbol = "git:";
@@ -146,11 +144,5 @@ in
       cat = "bat --paging=never";
       find = "fd";
     };
-    initExtra = ''
-      # Show a compact system summary only for interactive terminal sessions.
-      if [[ $- == *i* ]] && command -v fastfetch >/dev/null; then
-        fastfetch --logo nixos_small --structure "Title:OS:Kernel:Uptime:Shell:Terminal:CPU:Memory"
-      fi
-    '';
   };
 }
